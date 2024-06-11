@@ -1,175 +1,86 @@
 import os
-from flask import Flask, request, render_template, redirect, url_for
+from flask import Flask, request, render_template, redirect, url_for, flash
+
+from encryptodevs.lib.user import User
 from lib.database_connection import get_flask_database_connection
-from lib.peep_repository import PeepRepository
-from lib.peep import Peep
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from lib.user_repository import UserRepository
-from lib.user import User
+import datetime
+
+app = Flask(__name__)  # Create a Flask application instance
+app.secret_key = 'encryptodevs'  # Set a secret key for the application
+
+login_manager = LoginManager()  # Create a LoginManager instance
+login_manager.init_app(app)  # Initialize the LoginManager with the Flask application instance
 
 
-# Create a new Flask app
-app = Flask(__name__)
-
-# == Your Routes Here ==
-
-
-# == Example Code Below ==
-
-# GET /emoji
-# Returns a smiley face in HTML
-# Try it:
-#   ; open http://localhost:5001/emoji
-
-# app route for chitter homepage
-@app.route('/chitter/home', methods=['GET'])
-def get_chitter_homepage():
-    return render_template('home.html')
-
-# app route to GET sign up page
-@app.route('/chitter/user/sign_up', methods=['GET'])
-def get_login_sign_up_page():
-    return render_template('new_user.html')
-
-# app route for POST request of the sign up page
-@app.route('/chitter/user/sign_up', methods=['POST'])
-def create_account():
-    # Set up the database connection and repository
+@login_manager.user_loader  # Register a user loader function with the LoginManager
+def load_user(user_id):  # Define a function to load a user given a user id
     connection = get_flask_database_connection(app)
-    user_repository = UserRepository(connection)
+    repo = UserRepository(connection)
+    user_data = repo.find(user_id)
+    if user_data:
+        return User(user_data.id, user_data.name, user_data.email, user_data.password)
+    return None
 
-    # Get the fields from the request form
-    name = request.form ['name']
-    username = request.form['username']
-    email = request.form['email']
-    password = request.form['password']
 
-    # SQL query to check if username or email already exist as both must be unique
-    username_check = connection.execute('SELECT * from users WHERE username = %s', [username])
-    email_check = connection.execute('SELECT * from users WHERE email = %s', [email])
-    # This if is checking to see if the sql query has found an instance of the username or email
-    # If the username_check or email_check has found an entry then it will render the signup_failed.html
-    if username_check or email_check:
-        return render_template('signup_failed_username_email_notunique.html')
-    # This else is if the entered username or email has not already in the database and then creates the user account
-    else:
-        if "@" in email and "." in email:
-            if len(password) >= 8 and any(char.isupper() == True for char in password):
-        # Create a user object
-                user = User(None, name, username, email, password)
-                
-                # Save the user to the database
-                user_repository.create(user)
-                rows = connection.execute('SELECT * from users WHERE username = %s', [username])
-                id = rows[0]['id']
-                
+#LINK: http://127.0.0.1:5001/login
 
-                # Redirect to the welcome page with their id
-                return redirect(f"/welcome/{id}")
-            else:
-                return render_template('signup_failed_password.html')
-        else:
-            return render_template('signup_failed_email.html')
+# -------------------------------------------------LOGIN page
 
-# GET request to render the login.html page
-@app.route('/chitter/user/login', methods=['GET'])
-def get_login_page():
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form['email']  # Retrieve the email from the form data
+        password = request.form['password']  # Retrieve the password from the form data
+        connection = get_flask_database_connection(app)
+        users = UserRepository(connection)
+        users2 = users.all()
+        for user in users2:  # Iterate over the users dictionary
+            if user.email == email and user.password == password:
+                user = User(user.id, user.name, email, password)
+                login_user(user)
+                return render_template('dashboard.html', user=user)
+
+        # If email or password is incorrect, show flash message
+        flash('Invalid email or password. Please try again.', 'error')
+        return redirect("/login")
+
     return render_template('login.html')
 
-# POST request has forms to take in user ifo for login
-@app.route('/chitter/user/login', methods=['POST'])
-def login_account():
-    # Set up the database connection and repository
-    connection = get_flask_database_connection(app)
 
-    # Get the fields from the request form
-    username = request.form['username']
-    password = request.form['password']
+# -------------------------------------------------LOGIN page
 
-    # SQL commamnd to check if the username is in the databse
-    username_check = connection.execute('SELECT * from users WHERE username = %s', [username])
-    # If username is found
-    if username_check:
-        # This check to see if the password enetered in the password field is the same as the password in the database
-        if password == username_check[0]['password']:
-            id = username_check[0]['id']
-            # Redirects to the users welcome page
-            return redirect(f"/welcome/{id}")
-        else:
-            # If the username is found but the password incorect the user will be promted to re enter details untill correct.
-            return render_template('login_failed.html')
-    # if username is not found return to the login page, where they will also have an option to create an account.    
-    else:
-        return render_template('login_failed.html')
 
-# app route for welcome page that is user specific
-@app.route('/welcome/<int:id>', methods=['GET'])
-def welcome_page(id):
-    connection = get_flask_database_connection(app)
-    repository = UserRepository(connection)
-    user_info = repository.find(id)
-    return render_template('welcome.html', user = user_info)
-    
-# app route for retrieving all peeps their id is taken as they may create a peep from this page and the id will be used to assign to the peep
-@app.route('/get_all_peeps/<int:id>', methods=['GET'])
-def get_peeps(id):
-    connection = get_flask_database_connection(app)
-    peep_repository = PeepRepository(connection)
-    peep_list = peep_repository.all()
-    return render_template('get_peeps.html', peeps = peep_list, id = id)
+# -------------------------------------------------SIGN UP page
+@app.route('/sign-up', methods=['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+        email = request.form['email']
+        name = request.form['name']
+        password = request.form['password']
+        password_confirmation = request.form['password_conf']
+        connection = get_flask_database_connection(app)
+        users = UserRepository(connection)
 
-# app route for view peep in view only mode when the user is not logged in
-@app.route('/chitter/view_peeps', methods=['GET'])
-def view_peeps():
-    connection = get_flask_database_connection(app)
-    peep_repository = PeepRepository(connection)
-    peep_list = peep_repository.all()
-    return render_template('view_peeps.html', peeps = peep_list)
+        # Check if the email already exists
+        if users.check_email_exists(email):
+            flash('Email already exists. Please use a different email or sign in.', 'error')
+            return redirect('/dashboard')  # Render the sign-up form with the flash message
 
-# app route for GET request to render the new_peep.html page
-@app.route('/peep/new/<int:id>', methods=['GET'])
-def get_new_peep(id):
-    connection = get_flask_database_connection(app)
-    return render_template('new_peep.html', id = id)
+        if password != password_confirmation:
+            flash('Passwords are not the same')
+            return redirect('/dashboard')
 
-# POST request to retireve all the information to create a peep
-@app.route('/peep_create/<int:id>', methods=['POST'])
-def create_peep(id):
-    # Set up the database connection and repository
-    connection = get_flask_database_connection(app)
-    peep_repository = PeepRepository(connection)
+        # If the email doesn't exist, create the user
+        users.create(User(None, name, email, password))
+        flash('Account sign up successful!', 'success')  # Flash success message
+        return redirect("/login")
 
-    # Get the fields from the request form
-    message = request.form['message']
-    tag = request.form['tag']
+    return redirect('/dashboard')
 
-    # Create a peep object
-    peep = Peep(None, message, None, id, tag)
-    
-    # Save the peep to the database
-    peep_repository.create(peep)
 
-    # Redirect to the get all peeps route so user can see it 
-    return redirect(f'/get_all_peeps/{id}')
+# -------------------------------------------------SIGN UP page
 
-# app route for about_peep to view more information on the peep. /peep.id/user.id user.id is required so that when the user goes back to the get all peep page they will return to their user specific in case they then go on to create another peep
-@app.route('/about_peep/<int:id>/<int:id1>', methods=['GET'])
-def find_peep_info(id, id1):
-    connection = get_flask_database_connection(app)
-    peep_repository = PeepRepository(connection)
-    peep_info = peep_repository.find(id)
-    return render_template('about_peep.html', peep = peep_info, id = id1)
-
-@app.route('/about_peep_view/<int:id>', methods=['GET'])
-def view_peep_info(id):
-    connection = get_flask_database_connection(app)
-    peep_repository = PeepRepository(connection)
-    peep_info = peep_repository.find(id)
-    return render_template('view_about_peep.html', peep = peep_info)
-
-# == End Example Code ==
-
-# These lines start the server if you run this file directly
-# They also start the server configured to use the test database
-# if started in test mode.
 if __name__ == '__main__':
     app.run(debug=True, port=int(os.environ.get('PORT', 5001)))

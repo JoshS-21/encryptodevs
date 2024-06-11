@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>[Name of chat app]</title>
+    </head>
+    <body>
+        <div class="header">
+            <strong>[Name of chatapp}</strong>
+            <div class="header-right">
+                <a href="/login">Login</a>
+            </div>
+        </div>
+
+        <div class="centered-title">
+           <h1>Feel at home, Anywhere.</h1>
+            <p>
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Rem repellendus, nihil facilis labore error sapiente corrupti laudantium culpa atque reprehenderit ipsa libero nulla nostrum dignissimos ex enim expedita voluptate maxime!
+            </p>
+        </div>
+        <div class="spaces-container">
+            <div class="container">
+                <h2>Please sign up</h2>
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <ul>
+                            {% for message in messages %}
+                                <li class="error">{{ message }}</li>
+                            {% endfor %}
+                            <li class="error">Already have an account? <a href="/login">Sign in here</a></li> <!-- Added link to sign in -->
+                        </ul>
+                    {% endif %}
+                {% endwith %}
+                <form method="POST" action="/sign-up">
+                    <input type="email" name="email" placeholder="Email" required><br>
+                    <input type="text" name="name" placeholder="First Name" required><br>
+                    <input type="password" name="password" placeholder="Password" required><br>
+                    <input type="password" name="password_conf" placeholder="Password Confirmation" required><br>
+                    <input type="submit" value="Sign up" id="container-button">
+                    <div style="width: 100%; text-align: center;">
+                        {{error}}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   </head>
+    <body>
+        <div class="header">
+            <strong>Logo</strong>
+            <div class="header-right">
+                <a href="/dashboard">Sign up</a>
+            </div>
+        </div>
+
+        <div class="centered-title">
+           <h1>Log in to [Name of chat app]</h1>
+        </div>
+        <div class="spaces-container">
+            <div class="container">
+                <h2>Please login</h2>
+              <!-- Flash messages section -->
+              {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <ul>
+                      {% for message in messages %}
+                          <li class="error">{{ message }}</li>
+                      {% endfor %}
+                    </ul>
+                  {% endif %}
+                {% endwith %}
+                <form method="POST" action="/login">
+                    <input type="email" name="email" placeholder="Email" required><br>
+                    <input type="password" name="password" placeholder="Password" required><br>
+                    <input type="submit" value="Login" id="container-button">
+                </form>
+                <p>Haven't got an account? <a href="/dashboard">Sign up</a></p>
+            </div>
+        </div>
+  </body>
+</html>
