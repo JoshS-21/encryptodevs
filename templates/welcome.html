@@ -1,0 +1,20 @@
+<!-- GET /albums -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome Chitter</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='welcome_styles.css') }}">
+  </head>
+  <body>
+    <h1>Welcome to Chitter</h1>
+    <div>
+      <p>Welcome Back: {{user.name}}<br>
+      <br><a href="/get_all_peeps/{{user.id}}">View All Peeps</a></p>
+    </div>
+    <a href="/peep/new/{{user.id}}">Create New Peep</a><br>
+    <br><a href="/chitter/home">Log Out</a><br>
+    <!-- ... -->
+  </body>
+</html>

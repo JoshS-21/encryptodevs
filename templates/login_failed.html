@@ -1,0 +1,26 @@
+<!-- GET /albums -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Failed</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='login_styles.css') }}">
+  </head>
+  <body>
+    <h1>Login</h1>
+    <form action="/chitter/user/login", method="post">
+          <p>Incorrect Username or Password<br>
+          <br><label for="username">Username:</label>
+          <input type="text" name="username" id="username"><br>
+          <br><label for="password">Password:</label>
+          <input type="password" name="password" id="password">
+        </p>
+        <p>
+          <br><input type="submit" value="Login to Account">
+        </p>
+    </form>
+    <br><a href="/chitter/user/sign_up">Create New Account</a><br>
+    <!-- ... -->
+  </body>
+</html>
