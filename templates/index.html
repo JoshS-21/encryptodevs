@@ -1,10 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Title</title>
+	<meta charset="UTF-8">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"
+	        integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA=="
+	        crossorigin="anonymous"></script>
+	<title>Title</title>
 </head>
 <body>
-
+<h1>Test</h1>
+<div class="messages">
+	<input id="messageInput"/>
+</div>
+<script type="text/javascript" charset="utf-8">
+	const socket = io();
+	
+	let messageContainer = document.querySelector(".messages");
+	
+	// socket.on('connect', function() {
+  //       socket.emit('my event', {data: 'I\'m connected!'});
+		
+  //   });
+	
+	socket.on('connect', () => {
+		let p = document.createElement("p")
+		p.innerText = ("You're connected!")
+		messageContainer.appendChild(p)
+    })
+	
+	let messageInput = document.getElementById("messageInput")
+	messageInput.addEventListener("keypress", (e) => {
+		if (e.which === 13) {
+			socket.emit("message", messageInput.value)
+			messageInput.value = ""
+		}
+	})
+	
+	socket.on('message', () => {
+		let messageElement = document.createElement("p")
+		messageElement.innerText = messageInput.value
+		messageContainer.appendChild(messageElement)
+	})
+</script>
 </body>
 </html>
