@@ -1,86 +1,56 @@
 import os
 from flask import Flask, request, render_template, redirect, url_for, flash
+from flask_login import LoginManager, login_user, current_user
+from lib.user import User
 
-from encryptodevs.lib.user import User
-from lib.database_connection import get_flask_database_connection
-from flask_login import LoginManager, login_user, login_required, logout_user, current_user
-from lib.user_repository import UserRepository
-import datetime
+app = Flask(__name__)
+app.secret_key = 'encryptodevs'
 
-app = Flask(__name__)  # Create a Flask application instance
-app.secret_key = 'encryptodevs'  # Set a secret key for the application
+# Define a static database with sample usernames, emails, and passwords
+users = [
+    {'id': 1, 'name': 'User One', 'email': 'user1@example.com', 'password': 'password1'},
+    {'id': 2, 'name': 'User Two', 'email': 'user2@example.com', 'password': 'password2'}]
 
 login_manager = LoginManager()  # Create a LoginManager instance
 login_manager.init_app(app)  # Initialize the LoginManager with the Flask application instance
 
 
-@login_manager.user_loader  # Register a user loader function with the LoginManager
-def load_user(user_id):  # Define a function to load a user given a user id
-    connection = get_flask_database_connection(app)
-    repo = UserRepository(connection)
-    user_data = repo.find(user_id)
+@login_manager.user_loader
+def load_user(user_id):
+    user_data = next((user for user in users if str(user['id']) == user_id), None)
     if user_data:
-        return User(user_data.id, user_data.name, user_data.email, user_data.password)
+        return User(str(user_data['id']), user_data['name'], user_data['email'], user_data['password'])
     return None
 
 
-#LINK: http://127.0.0.1:5001/login
-
-# -------------------------------------------------LOGIN page
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == 'POST':
-        email = request.form['email']  # Retrieve the email from the form data
-        password = request.form['password']  # Retrieve the password from the form data
-        connection = get_flask_database_connection(app)
-        users = UserRepository(connection)
-        users2 = users.all()
-        for user in users2:  # Iterate over the users dictionary
-            if user.email == email and user.password == password:
-                user = User(user.id, user.name, email, password)
-                login_user(user)
-                return render_template('dashboard.html', user=user)
+    if current_user.is_authenticated:  # Redirect user if already logged in
+        return redirect(url_for('dashboard'))
 
-        # If email or password is incorrect, show flash message
-        flash('Invalid email or password. Please try again.', 'error')
-        return redirect("/login")
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        user_data = next((user for user in users if user['email'] == email), None)
+
+        if user_data and user_data['password'] == password:
+            user = User(str(user_data['id']), user_data['name'], user_data['email'], user_data['password'])
+            login_user(user)  # Log in the user
+            return redirect(url_for('dashboard'))
+        else:
+            flash('Invalid email or password. Please try again.', 'error')
+            return redirect(url_for('login'))
 
     return render_template('login.html')
 
 
-# -------------------------------------------------LOGIN page
+@app.route('/dashboard')
+def dashboard():
+    if not current_user.is_authenticated:  # Redirect user if not logged in
+        return redirect(url_for('login'))
 
+    return render_template('dashboard.html', user=current_user)
 
-# -------------------------------------------------SIGN UP page
-@app.route('/sign-up', methods=['GET', 'POST'])
-def signup():
-    if request.method == 'POST':
-        email = request.form['email']
-        name = request.form['name']
-        password = request.form['password']
-        password_confirmation = request.form['password_conf']
-        connection = get_flask_database_connection(app)
-        users = UserRepository(connection)
-
-        # Check if the email already exists
-        if users.check_email_exists(email):
-            flash('Email already exists. Please use a different email or sign in.', 'error')
-            return redirect('/dashboard')  # Render the sign-up form with the flash message
-
-        if password != password_confirmation:
-            flash('Passwords are not the same')
-            return redirect('/dashboard')
-
-        # If the email doesn't exist, create the user
-        users.create(User(None, name, email, password))
-        flash('Account sign up successful!', 'success')  # Flash success message
-        return redirect("/login")
-
-    return redirect('/dashboard')
-
-
-# -------------------------------------------------SIGN UP page
 
 if __name__ == '__main__':
-    app.run(debug=True, port=int(os.environ.get('PORT', 5001)))
+    app.run(debug=True)
