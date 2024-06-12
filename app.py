@@ -2,6 +2,9 @@ import os
 from flask import Flask, request, render_template, redirect, url_for, flash
 from flask_login import LoginManager, login_user, current_user, logout_user
 from lib.user import User
+from flask import Flask, jsonify
+from pymongo import MongoClient
+from dotenv import load_dotenv
 
 app = Flask(__name__)
 app.secret_key = 'encryptodevs'
