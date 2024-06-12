@@ -4,7 +4,7 @@ import SignUp from 'Signup'; // Assuming the SignUp component is in a file named
 const App = () => {
     return (
         <div>
-            <h1>Welcome to Your App</h1>
+            <h1>Welcome </h1>
             <SignUp />
         </div>
     );
