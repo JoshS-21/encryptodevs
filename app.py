@@ -15,9 +15,13 @@ def index():
     return render_template('index.html')
 
 
+@socketio.on('connected')
+def connected(socket_id):
+    print(socket_id)
+
+
 @socketio.on('message')
 def handle_message(message):
-    print(request.sid)
     send(message)
 
 

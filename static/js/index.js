@@ -7,6 +7,9 @@ socket.on('connect', () => {
     let p = document.createElement("p")
     p.innerText = ("You're connected!")
     messageContainer.appendChild(p)
+    console.log(socket.id)
+    let socket_id = socket.id
+    socket.emit("connected", socket_id)
 })
 
 
