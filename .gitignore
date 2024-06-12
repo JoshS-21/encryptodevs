@@ -1,5 +1,1 @@
-__pycache__
-.vscode
-.pytest_cache
-screenshot.png
-*VENV
+*venv
