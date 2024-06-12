@@ -1,6 +1,6 @@
 import os
 from flask import Flask, request, render_template, redirect, url_for, flash
-from flask_login import LoginManager, login_user, current_user
+from flask_login import LoginManager, login_user, current_user, logout_user
 from lib.user import User
 
 app = Flask(__name__)
@@ -44,12 +44,38 @@ def login():
     return render_template('login.html')
 
 
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        name = request.form['name']
+
+        # Check if the email already exists
+        if any(user['email'] == email for user in users):
+            flash('Email already exists. Please use a different email or sign in.', 'error')
+            return render_template('sign_up_form.html')  # Render the sign-up form with the flash message
+
+        # If the email doesn't exist, create the user
+        user_id = len(users) + 1
+        users.append({'id': user_id, 'name': name, 'email': email, 'password': password})
+        flash('Account sign up successful!', 'success')  # Flash success message
+        return redirect(url_for('login'))
+
+    return render_template('sign_up_form.html')
+
+
 @app.route('/dashboard')
 def dashboard():
     if not current_user.is_authenticated:  # Redirect user if not logged in
         return redirect(url_for('login'))
-
     return render_template('dashboard.html', user=current_user)
+
+
+@app.route('/logout', methods=['GET'])
+def return_to_login():
+    logout_user()
+    return redirect('/login')  #Redirect back to login page
 
 
 if __name__ == '__main__':
