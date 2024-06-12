@@ -4,3 +4,7 @@ __pycache__
 screenshot.png
 *VENV
 .idea
+*venv
+.venv
+encryptodevs/
+Final_project_venv/
