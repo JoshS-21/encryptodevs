@@ -1,1 +1,10 @@
+__pycache__
+.vscode
+.pytest_cache
+screenshot.png
+*VENV
+.idea
 *venv
+.venv
+encryptodevs/
+Final_project_venv/
