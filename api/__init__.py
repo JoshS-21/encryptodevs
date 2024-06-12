@@ -1,4 +1,3 @@
-
 import os
 from pymongo import MongoClient
 from dotenv import load_dotenv
@@ -17,6 +16,7 @@ db = client['encryptodevs']
 
 # Create a collection and insert a document
 collection = db['users']
-result = collection.insert_one({"username": "abdio", "name": "abdi", "email": "abdi@example.com", "phone_number": "123-456-7890", "password": "hashed_password"})
+result = collection.insert_one({"username": "abdio", "name": "abdi", "email": "abdi@example.com",
+                                "phone_number": "123-456-7890", "password": "hashed_password"})
 
 print("Inserted document ID:", result.inserted_id)

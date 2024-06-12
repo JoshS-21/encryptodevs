@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
+
 class DatabaseConnection:
     DEV_DATABASE_NAME = os.getenv('MONGODB_DATABASE')
     TEST_DATABASE_NAME = "encryptodevs_test"
@@ -45,6 +46,7 @@ class DatabaseConnection:
 
     def _database_name(self):
         return self.TEST_DATABASE_NAME if self.test_mode else self.DEV_DATABASE_NAME
+
 
 # This function integrates with Flask to create one database connection that
 # each Flask request can use. To see how to use it, look at example_routes.py

@@ -23,6 +23,7 @@ CORS(app)
 
 db = client["encryptodevs"]
 
+
 # Sign-up route
 @app.route('/signup', methods=['POST'])
 def signup():
@@ -46,6 +47,7 @@ def signup():
 
     return jsonify({'message': 'User signed up successfully', 'user_id': str(result.inserted_id)}), 201
 
+
 # Login route
 @app.route('/login', methods=['POST'])
 def login():
@@ -64,12 +66,14 @@ def login():
     else:
         return jsonify({'message': 'Invalid username or password'}), 401
 
+
 # Logout route
 @app.route('/logout', methods=['POST'])
 def logout():
     # Clear the session
     session.clear()
     return jsonify({'message': 'User logged out successfully'}), 200
+
 
 if __name__ == '__main__':
     app.run(debug=True)
