@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
   const [formData, setFormData] = useState({
     username: '',
     password: ''
   });
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({
@@ -23,6 +25,7 @@ const Login = () => {
           username: '',
           password: ''
         });
+        navigate('/posts'); // Redirect after successful login
       })
       .catch(error => {
         console.error('There was an error logging in!', error);

@@ -7,11 +7,10 @@ const Signup = () => {
     name: '',
     username: '',
     email: '',
-    phone_number: '',
-    password: ''
+    password: '',
+    phone_number: ''
   });
-
-  const navigate = useNavigate(); // Initialize the navigate function
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({
@@ -29,10 +28,10 @@ const Signup = () => {
           name: '',
           username: '',
           email: '',
-          phone_number: '',
-          password: ''
+          password: '',
+          phone_number: ''
         });
-        navigate('/login'); // Redirect to login page after successful sign-up
+        navigate('/login'); // Redirect after successful signup
       })
       .catch(error => {
         console.error('There was an error signing up!', error);
@@ -46,8 +45,8 @@ const Signup = () => {
         <input type="text" name="name" placeholder="Name" value={formData.name} onChange={handleChange} required />
         <input type="text" name="username" placeholder="Username" value={formData.username} onChange={handleChange} required />
         <input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleChange} required />
-        <input type="text" name="phone_number" placeholder="Phone Number" value={formData.phone_number} onChange={handleChange} required />
         <input type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} required />
+        <input type="text" name="phone_number" placeholder="Phone Number" value={formData.phone_number} onChange={handleChange} required />
         <button type="submit">Signup</button>
       </form>
     </div>
