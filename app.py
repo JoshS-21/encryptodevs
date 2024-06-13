@@ -1,11 +1,30 @@
 from flask import request
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO, send, emit
+from pymongo import MongoClient
+from dotenv import load_dotenv
+import os
 
 # Create a new Flask app
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app)
+
+# Load environment variables from .env file
+load_dotenv()
+
+# MongoDB connection string from .env file
+connection_string = os.getenv('MONGODB_URL')
+
+# Initialize the MongoClient
+client = MongoClient(connection_string)
+
+# Create (or switch to) a database
+db = client['encryptodevs']
+
+# Create a collection and insert a document
+message_collection = db['messages']
+user_collection = db['users']
 
 
 # == Your Routes Here ==
@@ -46,7 +65,9 @@ def receive_username(username):
 def private_message(payload):
     recipient_session_id = users[payload['username']]
     message = payload['message']
-
+    new_message = {"content": message, "sender_id": 1, "recipient_id": recipient_session_id}
+    print(message)
+    message_collection.insert_one(new_message)
     emit('new_private_message', message, room=recipient_session_id)
 
 
