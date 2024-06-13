@@ -2,9 +2,9 @@ import os
 from flask import Flask, request, jsonify, session
 from flask_login import LoginManager, login_user, logout_user, UserMixin, current_user
 from pymongo import MongoClient
+from bson import ObjectId
 from dotenv import load_dotenv
 from flask_cors import CORS
-from api.user import User
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY')
@@ -27,10 +27,9 @@ db = client[encryptodevs]
 # Initialize CORS with your Flask app
 CORS(app)
 
-
-class ObjectId:
-    pass
-
+class User(UserMixin):
+    def __init__(self, user_id):
+        self.id = user_id
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -38,7 +37,6 @@ def load_user(user_id):
     if user_data:
         return User(user_id)
     return None
-
 
 # Sign-up route
 @app.route('/signup', methods=['POST'])
@@ -82,9 +80,6 @@ def login():
             return jsonify({'message': 'Invalid username or password'}), 401
     except Exception as e:
         return jsonify({'message': f'Error: {str(e)}'}), 500
-    
-
-
 
 # Logout route
 @app.route('/logout', methods=['POST'])
