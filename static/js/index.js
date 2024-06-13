@@ -51,8 +51,8 @@ document.getElementById('send_username').addEventListener('click', function () {
 document.getElementById('send_private_message').addEventListener('click', function () {
     const recipient = document.getElementById('send_to_username').value;
     const message_to_send = document.getElementById('private_message').value;
-
-    socket.emit('private_message', {'username': recipient, 'message': message_to_send});
+    const sender = document.getElementById('send_from_username').value;
+    socket.emit('private_message', {'recipient': recipient, 'message': message_to_send, 'sender': sender});
 });
 
 socket.on('new_private_message', function (msg) {

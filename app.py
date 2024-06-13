@@ -63,12 +63,12 @@ def receive_username(username):
 
 @socketio.on('private_message')
 def private_message(payload):
-    recipient_session_id = users[payload['username']]
-    message = payload['message']
-    new_message = {"content": message, "sender_id": 1, "recipient_id": recipient_session_id}
-    print(message)
-    message_collection.insert_one(new_message)
-    emit('new_private_message', message, room=recipient_session_id)
+    recipient_session_id = users[payload['recipient']]
+    sender_session_id = users[payload['sender']]
+    message_content = payload['message']
+    message_collection.insert_one({"content": message_content, "sender_id": sender_session_id, "recipient_id": recipient_session_id})
+    emit('new_private_message', message_content, room=recipient_session_id)
+    emit('new_private_message', message_content, room=sender_session_id)
 
 
 # These lines start the server if you run this file directly
