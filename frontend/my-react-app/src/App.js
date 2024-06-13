@@ -1,13 +1,45 @@
 import React from 'react';
-import SignUp from './signup.jsx'; // Assuming the SignUp component is in a file named SignUp.jsx
+
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import "./App.css";
+
+import  SignUp  from "./pages/signup/signup.jsx";
+import  Login  from "./pages/login/login.jsx";
+import HomePage  from "./pages/homepage/homepage.jsx";
+
+// docs: https://reactrouter.com/en/main/start/overview
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: 
+    <>
+      <HomePage/>
+      
+    </>
+  },
+  {
+    path: "/login",
+    element: 
+    <>
+      <Login/>
+      
+    </>,
+  },
+  {
+    path: "/signup",
+    element: 
+    <>
+      
+      <SignUp/>
+    </>,
+  },
+
+]);
 
 const App = () => {
-    return (
-        <div>
-            <h1>Welcome to Your App</h1>
-            <SignUp />
-        </div>
-    );
+  return (
+    <RouterProvider router={router} />
+  );
 };
 
 export default App;

@@ -1,15 +1,18 @@
 import os
 from flask import Flask, request, jsonify, session
 from pymongo import MongoClient
+from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
-from flask_cors import CORS
+
+# Load environment variables from .env file
+load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY')
 
-# Load environment variables from .env file
-load_dotenv()
+# Enable CORS for the Flask app
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 
 # MongoDB connection string and database name from .env file
 connection_string = os.getenv('MONGODB_URL')
@@ -17,11 +20,7 @@ database_name = os.getenv('MONGODB_DATABASE')
 
 # Initialize the MongoClient
 client = MongoClient(connection_string)
-
-# Initialize CORS with your Flask app
-CORS(app)
-
-db = client["encryptodevs"]
+db = client[database_name]
 
 # Sign-up route
 @app.route('/signup', methods=['POST'])
@@ -30,6 +29,7 @@ def signup():
     name = user_data.get('name')
     username = user_data.get('username')
     email = user_data.get('email')
+    phone_number = user_data.get('phone_number')
     password = user_data.get('password')
 
     # Hash the password
@@ -41,6 +41,7 @@ def signup():
         "name": name,
         "username": username,
         "email": email,
+        "phone_number": phone_number,
         "password": hashed_password
     })
 
