@@ -38,6 +38,7 @@ def load_user(user_id):
         return User(user_id)
     return None
 
+
 # Sign-up route
 @app.route('/signup', methods=['POST'])
 def signup():
@@ -60,6 +61,7 @@ def signup():
 
     return jsonify({'message': 'User signed up successfully', 'user_id': str(result.inserted_id)}), 201
 
+
 # Login route
 @app.route('/login', methods=['POST'])
 def login():
@@ -81,12 +83,14 @@ def login():
     except Exception as e:
         return jsonify({'message': f'Error: {str(e)}'}), 500
 
+
 # Logout route
 @app.route('/logout', methods=['POST'])
 def logout():
     session.clear()
     logout_user()
     return jsonify({'message': 'User logged out successfully'}), 200
+
 
 if __name__ == '__main__':
     app.run(debug=True)
