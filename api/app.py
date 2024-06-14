@@ -103,12 +103,6 @@ def logout():
 def connected(socket_id):
     print(socket_id)
 
-
-@socketio.on('message')
-def handle_message(message):
-    send(message)
-
-
 users = {}
 
 
@@ -128,6 +122,7 @@ def receive_username(username):
 
 @socketio.on('private_message')
 def private_message(payload):
+    print(payload)
     recipient_session_id = users[payload['recipient']]
     sender_session_id = users[payload['sender']]
     message_content = payload['message']

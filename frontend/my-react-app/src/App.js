@@ -6,7 +6,7 @@ import "./App.css";
 import  SignUp  from "./pages/signup/signup.jsx";
 import  Login  from "./pages/login/login.jsx";
 import HomePage  from "./pages/homepage/homepage.jsx";
-import Chat from "./components/Chat.jsx";
+import PrivateMessageForm from "./components/privateMessageForm.jsx";
 
 // docs: https://reactrouter.com/en/main/start/overview
 const router = createBrowserRouter([
@@ -22,7 +22,7 @@ const router = createBrowserRouter([
     path: "/test",
     element: 
     <>
-      <Chat/>
+      <PrivateMessageForm/>
       
     </>
   },
