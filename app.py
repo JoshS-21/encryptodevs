@@ -76,6 +76,7 @@ def private_message(payload):
 # These lines start the server if you run this file directly
 # They also start the server configured to use the test database
 # if started in test mode.
+#
 if __name__ == '__main__':
     # app.run(debug=True, allow_unsafe_werkzeug=True, port=int(os.environ.get('PORT', 5001)))
     socketio.run(app, allow_unsafe_werkzeug=True, debug=True)
