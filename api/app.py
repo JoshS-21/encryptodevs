@@ -10,7 +10,7 @@ import time
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY')
-socketio = SocketIO(app)
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 # Initialize the LoginManager
 login_manager = LoginManager()
@@ -122,9 +122,8 @@ def receive_username(username):
 
 @socketio.on('private_message')
 def private_message(payload):
-    print(payload)
-    recipient_session_id = users[payload['recipient']]
-    sender_session_id = users[payload['sender']]
+    recipient_session_id = payload['recipient']
+    sender_session_id = payload['sender']
     message_content = payload['message']
     message_timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
     message_collection.insert_one({"content": message_content, "sender_id": sender_session_id, "recipient_id": recipient_session_id, "timestamp": message_timestamp})
@@ -138,6 +137,6 @@ def private_message(payload):
 #
 if __name__ == '__main__':
     # app.run(debug=True, allow_unsafe_werkzeug=True, port=int(os.environ.get('PORT', 5001)))
-    socketio.run(app, allow_unsafe_werkzeug=True, debug=True)
+    socketio.run(app, host='0.0.0.0', port=5000, allow_unsafe_werkzeug=True, debug=True)
 
 
