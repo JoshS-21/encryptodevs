@@ -4,6 +4,7 @@ from flask_socketio import SocketIO, send, emit
 from pymongo import MongoClient
 from dotenv import load_dotenv
 import os
+import time
 
 # Create a new Flask app
 app = Flask(__name__)
@@ -66,7 +67,8 @@ def private_message(payload):
     recipient_session_id = users[payload['recipient']]
     sender_session_id = users[payload['sender']]
     message_content = payload['message']
-    message_collection.insert_one({"content": message_content, "sender_id": sender_session_id, "recipient_id": recipient_session_id})
+    message_timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
+    message_collection.insert_one({"content": message_content, "sender_id": sender_session_id, "recipient_id": recipient_session_id, "timestamp": message_timestamp})
     emit('new_private_message', message_content, room=recipient_session_id)
     emit('new_private_message', message_content, room=sender_session_id)
 
