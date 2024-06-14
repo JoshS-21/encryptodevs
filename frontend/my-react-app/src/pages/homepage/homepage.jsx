@@ -6,6 +6,7 @@ const HomePage = () => {
     <div>
       <h1>Welcome to encryptodevs</h1>
       <p>Please <Link to="/login">Login</Link> or <Link to="/signup">Sign Up</Link> to continue.</p>
+
     </div>
   );
 };
