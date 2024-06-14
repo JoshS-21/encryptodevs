@@ -5,12 +5,14 @@ from pymongo import MongoClient
 from bson import ObjectId
 from dotenv import load_dotenv
 from flask_cors import CORS
-
-app = Flask(__name__)
-app.secret_key = os.getenv('SECRET_KEY')
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from user import User
 
 # Load environment variables from .env file
 load_dotenv()
+
+app = Flask(__name__)
+app.secret_key = os.getenv('SECRET_KEY')
 
 # MongoDB connection string and database name from .env file
 connection_string = os.getenv('MONGODB_URL')
@@ -27,28 +29,9 @@ CORS(app, supports_credentials=True)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-
-class User(UserMixin):
-    def __init__(self, user_id, username):
-        self.id = user_id
-        self.username = username
-        self.is_online = False  # Default to False when user is created
-
-    def set_online(self, is_online):
-        self.is_online = is_online
-
-    def is_authenticated(self):
-        return super().is_authenticated() and self.is_online
-
-    @classmethod
-    def get(cls, user_id, db):
-        user_data = db['users'].find_one({"_id": ObjectId(user_id)})
-        if user_data:
-            return User(
-                user_id=user_data['_id'],
-                username=user_data['username'],
-            )
-        return None
+# Initialize JWT Manager
+app.config["JWT_SECRET_KEY"] = os.getenv('JWT_SECRET_KEY')
+jwt = JWTManager(app)
 
 
 @login_manager.user_loader
@@ -71,39 +54,41 @@ def login():
             login_user(user_obj)
             user_obj.set_online(True)  # Set user online upon successful login
             collection.update_one({'_id': user['_id']}, {'$set': {'is_online': True}})
+            access_token = create_access_token(identity=str(user['_id']))
 
             # Return a response indicating successful login
-            return jsonify({'message': 'User logged in successfully', 'user_id': str(user['_id'])}), 200
+            return jsonify({'message': 'User logged in successfully', 'user_id': str(user['_id']), 'token': access_token}), 200
         else:
             return jsonify({'message': 'Invalid username or password'}), 401
 
     except Exception as e:
+        # Print the error message to the console
+        print(f"Error: {str(e)}")
         return jsonify({'message': f'Error: {str(e)}'}), 500
 
 
 @app.route('/logout', methods=['GET'])
-@login_required
+@jwt_required()
 def logout():
     try:
-        current_user.set_online(False)
-        db.session.commit()
-        logout_user()
+        current_user_id = get_jwt_identity()
+        # Perform any additional cleanup tasks if needed
         return jsonify({'message': 'User logged out successfully'}), 200
-
     except Exception as e:
         return jsonify({'message': f'Error: {str(e)}'}), 500
+
 
 
 @app.route('/user-status', methods=['GET'])
-@login_required
+@jwt_required()
 def user_status():
-    print(current_user.username)
-    try:
-        print(current_user.username)
-        return jsonify({'username': current_user.username, 'status': 'Online' if current_user.is_authenticated else 'Offline'}), 200
+    current_user_id = get_jwt_identity()
+    user = db['users'].find_one({'_id': ObjectId(current_user_id)})
 
-    except Exception as e:
-        return jsonify({'message': f'Error: {str(e)}'}), 500
+    if user:
+        return jsonify({'username': user['username']}), 200
+    else:
+        return jsonify({'message': 'User not found'}), 404
 
 
 # Sign-up route
