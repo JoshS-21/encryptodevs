@@ -1,69 +1,64 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-// If using React Router for navigation
-// import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCircle } from '@fortawesome/free-solid-svg-icons';
 
 const Landing = () => {
   const [userData, setUserData] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  // If using React Router for navigation
-  // const history = useHistory();
+  const [users, setUsers] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUserData = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-          throw new Error('No token available');
-        }
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/login');
+        return;
+      }
 
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/user-status`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
+      const headers = { headers: { Authorization: `Bearer ${token}` } };
+      const userResponse = await axios.get(`${process.env.REACT_APP_API_URL}/user-status`, headers);
+      const usersResponse = await axios.get(`${process.env.REACT_APP_API_URL}/users`, headers);
 
-        setUserData(response.data);
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-      } finally {
-        setIsLoading(false);
+      if (userResponse.status === 200) {
+        setUserData(userResponse.data);
+      } else {
+        console.error('Failed to fetch user data');
+        navigate('/login');
+      }
+
+      if (usersResponse.status === 200) {
+        setUsers(usersResponse.data);
+      } else {
+        console.error('Failed to fetch users data');
+        navigate('/login');
       }
     };
 
     fetchUserData();
-
-  }, []);
+  }, [navigate]);
 
   const handleLogout = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('No token available');
-      }
+    const token = localStorage.getItem('token');
+    if (!token) return;
 
-      await axios.get(`${process.env.REACT_APP_API_URL}/logout`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
+    const headers = { headers: { Authorization: `Bearer ${token}` } };
+    const logoutResponse = await axios.post(`${process.env.REACT_APP_API_URL}/logout`, {}, headers);
 
+    if (logoutResponse.status === 200) {
       localStorage.removeItem('token');
-      // If using React Router for navigation
-      // history.push('/login');  // Redirect to login page after logout
-      // You can also use window.location.href = '/login'; for redirection
+      setUserData(null);
+      setUsers(users.map(user => ({
+        ...user,
+        is_online: user.user_id === userData?.user_id ? false : user.is_online
+      })));
 
-      // For now, just reload the page to simulate logout
-      window.location.reload();
-    } catch (error) {
-      console.error('Error logging out:', error);
-      // Handle error
+      navigate('/login');
+    } else {
+      console.error('Logout failed');
     }
   };
-
-  if (isLoading) {
-    return <p>Loading user data...</p>;
-  }
 
   return (
     <div>
@@ -71,11 +66,32 @@ const Landing = () => {
       {userData ? (
         <div>
           <p>Logged in as: {userData.username}</p>
+          <p>
+            Status:
+            <FontAwesomeIcon
+              icon={faCircle}
+              style={{ color: userData.is_online ? 'green' : 'red', marginLeft: '8px' }}
+            />
+            {userData.is_online ? 'Online' : 'Offline'}
+          </p>
           <button onClick={handleLogout}>Logout</button>
         </div>
       ) : (
-        <p>No user data available</p>
+        <p>User data is not available</p>
       )}
+      <h3>All Users:</h3>
+      <ul>
+        {users.map(user => (
+          <li key={user.user_id}>
+            {user.username} -
+            <FontAwesomeIcon
+              icon={faCircle}
+              style={{ color: user.is_online ? 'green' : 'red', marginLeft: '8px' }}
+            />
+            {user.is_online ? 'Online' : 'Offline'}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };

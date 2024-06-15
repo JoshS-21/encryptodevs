@@ -14,39 +14,38 @@ const Login = () => {
     });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/login`, formData);
-      alert(response.data.message);
-      localStorage.setItem('token', response.data.token);  // Save token to localStorage
-      window.location.href = '/landing';  // Redirect to landing page
-    } catch (error) {
-      console.error('Error logging in:', error);
-      alert('Login failed. Please try again.');
-    }
+    axios.post(`${process.env.REACT_APP_API_URL}/login`, formData)
+      .then(response => {
+        alert(response.data.message);
+        localStorage.setItem('token', response.data.token);  // Save token to localStorage
+        window.location.href = '/landing';  // Redirect to landing page
+      })
+      .catch(error => {
+        console.error('Error logging in:', error);
+        alert('Login failed. Please try again.');
+      });
   };
 
   return (
     <div>
       <h2>Login</h2>
       <form onSubmit={handleSubmit}>
-        <label htmlFor="username">Username:</label>
         <input
           type="text"
-          id="username"
           name="username"
+          placeholder="Username"
           value={formData.username}
           onChange={handleChange}
           autoComplete="username"
           required
         />
         <br />
-        <label htmlFor="password">Password:</label>
         <input
           type="password"
-          id="password"
           name="password"
+          placeholder="Password"
           value={formData.password}
           onChange={handleChange}
           autoComplete="current-password"
