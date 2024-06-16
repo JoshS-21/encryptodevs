@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircle } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; //Styling package
+import { faCircle } from '@fortawesome/free-solid-svg-icons'; //Styling for icon status
 
 const Landing = () => {
   const [userData, setUserData] = useState(null);
@@ -51,13 +51,27 @@ const Landing = () => {
       setUserData(null);
       setUsers(users.map(user => ({
         ...user,
-        is_online: user.user_id === userData?.user_id ? false : user.is_online
+        is_online: user.user_id === userData?.user_id ? false : user.is_online,
+        last_seen: user.user_id === userData?.user_id ? new Date().toISOString() : user.last_seen,
       })));
 
       navigate('/login');
     } else {
       console.error('Logout failed');
     }
+  };
+
+  const formatLastSeen = (lastSeen) => {
+    if (!lastSeen || lastSeen === 'N/A') return 'N/A';
+    const lastSeenDate = new Date(lastSeen);
+    const now = new Date();
+    const diffInMinutes = Math.floor((now - lastSeenDate) / 60000);
+
+    if (diffInMinutes < 1) return 'just now';
+    if (diffInMinutes < 60) return `${diffInMinutes} minutes ago`;
+    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)} hours ago`;
+
+    return `on ${lastSeenDate.toLocaleDateString()} at ${lastSeenDate.toLocaleTimeString()}`;
   };
 
   return (
@@ -72,7 +86,7 @@ const Landing = () => {
               icon={faCircle}
               style={{ color: userData.is_online ? 'green' : 'red', marginLeft: '8px' }}
             />
-            {userData.is_online ? 'Online' : 'Offline'}
+            {userData.is_online ? 'Online' : `Offline (Last seen: ${formatLastSeen(userData.last_seen)})`}
           </p>
           <button onClick={handleLogout}>Logout</button>
         </div>
@@ -88,7 +102,7 @@ const Landing = () => {
               icon={faCircle}
               style={{ color: user.is_online ? 'green' : 'red', marginLeft: '8px' }}
             />
-            {user.is_online ? 'Online' : 'Offline'}
+            {user.is_online ? 'Online' : `Offline (Last seen: ${formatLastSeen(user.last_seen)})`}
           </li>
         ))}
       </ul>
