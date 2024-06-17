@@ -6,7 +6,6 @@ from flask_socketio import SocketIO, send, emit
 import time
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, verify_jwt_in_request, \
     decode_token
-from datetime import datetime, timezone
 from flask_bcrypt import Bcrypt
 import os
 from dotenv import load_dotenv
@@ -124,10 +123,13 @@ def login():
 @jwt_required()
 def logout():
     current_user_id = get_jwt_identity()
+    username = user_collection.find_one({'_id': ObjectId(current_user_id)})['username']
+    users.pop(username, None)
     db['users'].update_one(
         {'_id': ObjectId(current_user_id)},
         {'$set': {'is_online': False, 'last_seen': time.strftime('%Y-%m-%d %H:%M:%S')}}
     )
+
     return jsonify({'message': 'User logged out successfully'}), 200
 
 
