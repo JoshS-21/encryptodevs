@@ -1,24 +1,15 @@
-import os
-from flask import Flask, request, render_template, jsonify, session
-from flask_login import LoginManager, login_user, logout_user, UserMixin, current_user
+from flask import Flask, request, jsonify
 from pymongo import MongoClient
 from bson import ObjectId
-from dotenv import load_dotenv
 from flask_cors import CORS
 from flask_socketio import SocketIO, send, emit
 import time
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from datetime import datetime, timezone
+from flask_bcrypt import Bcrypt
+import os
+from dotenv import load_dotenv
 from user import User
-
-app = Flask(__name__)
-app.secret_key = os.getenv('SECRET_KEY')
-socketio = SocketIO(app, cors_allowed_origins="*")
-
-# Initialize the LoginManager
-login_manager = LoginManager()
-login_manager.init_app(app)
-
 
 # Load environment variables from .env file
 load_dotenv()
@@ -26,6 +17,8 @@ load_dotenv()
 app = Flask(__name__)
 app.config["JWT_SECRET_KEY"] = os.getenv('JWT_SECRET_KEY')
 jwt = JWTManager(app)
+bcrypt = Bcrypt(app)
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 # MongoDB's connection string and database name from .env file
 connection_string = os.getenv('MONGODB_URL')
@@ -40,18 +33,6 @@ user_collection = db['users']
 # Enable CORS for all routes
 CORS(app)
 
-class User(UserMixin):
-    def __init__(self, user_id):
-        self.id = user_id
-
-@login_manager.user_loader
-def load_user(user_id):
-    user_data = db['users'].find_one({"_id": ObjectId(user_id)})
-    if user_data:
-        return User(user_id)
-    return None
-
-
 # Sign-up route
 @app.route('/signup', methods=['POST'])
 def signup():
@@ -62,18 +43,19 @@ def signup():
     password = user_data.get('password')
     phone_number = user_data.get('phone_number')
 
+    hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+
     # Save user data to the database
     collection = db['users']
     result = collection.insert_one({
         "name": name,
         "username": username,
         "email": email,
-        "password": password,
+        "password": hashed_password,
         "phone_number": phone_number,
         "is_online": False,  # Ensure default value for is_online
         "last_seen": None  # Set last_seen to None at the time of signup
     })
-
     return jsonify({'message': 'User signed up successfully', 'user_id': str(result.inserted_id)}), 201
 
 
@@ -87,7 +69,7 @@ def login():
     collection = db['users']
     user = collection.find_one({'username': username})
 
-    if user and user['password'] == password:
+    if user and bcrypt.check_password_hash(user['password'], password):
         user_obj = User(str(user['_id']), username)
         user_obj.set_online(True)  # Set user online upon successful login
         collection.update_one({'_id': user['_id']}, {'$set': {'is_online': True, 'last_seen': None}})
