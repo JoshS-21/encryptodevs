@@ -4,12 +4,14 @@ from bson import ObjectId
 from flask_cors import CORS
 from flask_socketio import SocketIO, send, emit
 import time
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, verify_jwt_in_request, \
+    decode_token
 from datetime import datetime, timezone
 from flask_bcrypt import Bcrypt
 import os
 from dotenv import load_dotenv
 from user import User
+from functools import wraps
 
 # Load environment variables from .env file
 load_dotenv()
@@ -32,6 +34,7 @@ user_collection = db['users']
 
 # Enable CORS for all routes
 CORS(app)
+
 
 # Sign-up route
 @app.route('/signup', methods=['POST'])
@@ -74,7 +77,9 @@ def login():
         user_obj.set_online(True)  # Set user online upon successful login
         collection.update_one({'_id': user['_id']}, {'$set': {'is_online': True, 'last_seen': None}})
         access_token = create_access_token(identity=str(user['_id']))
-
+        users[username] = {'id': user['_id'], 'email': user['email'], 'phone_number': user['phone_number'],
+                           'session_id': None, 'access_token': access_token}
+        # print(users)
         return jsonify(
             {'message': 'User logged in successfully', 'user_id': str(user['_id']), 'token': access_token}), 200
     else:
@@ -88,7 +93,7 @@ def logout():
     current_user_id = get_jwt_identity()
     db['users'].update_one(
         {'_id': ObjectId(current_user_id)},
-        {'$set': {'is_online': False, 'last_seen': datetime.now(timezone.utc).isoformat()}}
+        {'$set': {'is_online': False, 'last_seen': time.strftime('%Y-%m-%d %H:%M:%S')}}
     )
     return jsonify({'message': 'User logged out successfully'}), 200
 
@@ -123,25 +128,47 @@ def get_all_users():
         })
     return jsonify(user_list), 200
 
+
+# Private Messaging Handler Below
+def socket_auth_required(f):
+    @wraps(f)
+    def wrapped(*args, **kwargs):
+        try:
+            token = request.args.get('token')
+            if token:
+                decoded_token = decode_token(token)
+                user_id = decoded_token['sub']
+                request.user_id = user_id  # Attach user_id to request
+                return f(*args, **kwargs)
+            else:
+                raise RuntimeError('Missing token')
+        except Exception as e:
+            emit('error', {'message': str(e)})
+            return
+
+    return wrapped
+
+
 @socketio.on('connected')
-def connected(socket_id):
-    print(socket_id)
+@socket_auth_required
+def handle_connected(data):
+    user_id = request.user_id
+    username = user_collection.find_one({'_id': ObjectId(user_id)})['username']
+    socket_id = data['socket_id']
+    users[username]['session_id'] = str(socket_id)
+    print(users)
+    emit('response', {'message': f'User {user_id} connected with socket ID: {socket_id}'})
+
 
 users = {}
 
 
-@socketio.on('message from user')
-def receive_message_from_user(message):
-    print('USER MESSAGE: {}'.format(message))
-    emit('from flask', message.upper(), broadcast=True)
-
-
-@socketio.on('username')
-def receive_username(username):
-    users[username] = request.sid
-    # users.append({username : request.sid})
-    print(users)
-    print('Username added!')
+# @socketio.on('username')
+# def receive_username(username):
+#     users[username] = request.sid
+#     # users.append({username : request.sid})
+#     print(users)
+#     print('Username added!')
 
 
 @socketio.on('private_message')
@@ -150,13 +177,14 @@ def private_message(payload):
     sender_session_id = payload['sender']
     message_content = payload['message']
     message_timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
-    message_collection.insert_one({"content": message_content, "sender_id": sender_session_id, "recipient_id": recipient_session_id, "timestamp": message_timestamp})
+    message_collection.insert_one(
+        {"content": message_content, "sender_id": sender_session_id, "recipient_id": recipient_session_id,
+         "timestamp": message_timestamp})
     emit('new_private_message', message_content, room=recipient_session_id)
     emit('new_private_message', message_content, room=sender_session_id)
 
 
 if __name__ == '__main__':
-    # app.run(debug=True, allow_unsafe_werkzeug=True, port=int(os.environ.get('PORT', 5001)))
+    # app.run(debug=True)
+    # app.run(debug=True, port=int(os.environ.get('PORT', 5001)))
     socketio.run(app, host='0.0.0.0', port=5000, allow_unsafe_werkzeug=True, debug=True)
-
-
