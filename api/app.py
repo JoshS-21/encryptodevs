@@ -83,6 +83,7 @@ def login():
             user_obj = User(str(user['_id']))
             login_user(user_obj)
             return jsonify({'message': 'User logged in successfully', 'user_id': str(user['_id'])}), 200
+
         else:
             return jsonify({'message': 'Invalid username or password'}), 401
     except Exception as e:
