@@ -9,7 +9,6 @@ from flask_socketio import SocketIO, send, emit
 import time
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from datetime import datetime, timezone
-import os
 from user import User
 
 app = Flask(__name__)
