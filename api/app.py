@@ -172,9 +172,12 @@ users = {}
 
 
 @socketio.on('private_message')
+@socket_auth_required
 def private_message(payload):
-    recipient_session_id = payload['recipient']
-    sender_session_id = payload['sender']
+    user_id = request.user_id
+    username = user_collection.find_one({'_id': ObjectId(user_id)})['username']
+    recipient_session_id = users[payload['recipient']]['session_id']
+    sender_session_id = users[username]['session_id']
     message_content = payload['message']
     message_timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
     message_collection.insert_one(
