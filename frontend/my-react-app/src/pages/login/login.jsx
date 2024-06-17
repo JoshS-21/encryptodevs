@@ -10,8 +10,8 @@ const Login = () => {
 
   const handleChange = (e) => {
     setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
+      ...formData, // Spread the current formData to maintain existing state
+      [e.target.name]: e.target.value // Update the specific field
     });
   };
 
