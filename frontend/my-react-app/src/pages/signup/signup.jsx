@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import logo from "../landing_page/Encryptodev_Logo.png";
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -88,26 +89,33 @@ const Signup = () => {
   };
 
   return (
-    <div>
-      <h2>Signup</h2>
-      <form onSubmit={handleSubmit}>
-        <input type="text" name="name" placeholder="Name" value={formData.name} onChange={handleChange} required />
-        <br />
-        <input type="text" name="username" placeholder="Username" value={formData.username} onChange={handleChange} required />
-        {validationErrors.username && <p style={{ color: 'red' }}>{validationErrors.username}</p>}
-        <br />
-        <input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleChange} required />
-        {validationErrors.email && <p style={{ color: 'red' }}>{validationErrors.email}</p>}
-        <br />
-        <input type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} required />
-        {validationErrors.password && <p style={{ color: 'red' }}>{validationErrors.password}</p>}
-        <br />
-        <input type="text" name="phone_number" placeholder="Phone Number" value={formData.phone_number} onChange={handleChange} required />
-        {validationErrors.phone_number && <p style={{ color: 'red' }}>{validationErrors.phone_number}</p>}
-        <br />
-        <button type="submit">Signup</button>
-      </form>
-    </div>
+      <div>
+        <h2>Signup</h2>
+        <img src={logo} alt="Encryptodevs_Logo" style={{width: '200px', height: 'auto'}}/>
+        <form onSubmit={handleSubmit}>
+          <input type="text" name="name" placeholder="Name" value={formData.name} onChange={handleChange} required/>
+          <br/>
+          <input type="text" name="username" placeholder="Username" value={formData.username} onChange={handleChange}
+                 required/>
+          {validationErrors.username && <p style={{color: 'red'}}>{validationErrors.username}</p>}
+          <br/>
+          <input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleChange} required/>
+          {validationErrors.email && <p style={{color: 'red'}}>{validationErrors.email}</p>}
+          <br/>
+          <input type="password" name="password" placeholder="Password" value={formData.password}
+                 onChange={handleChange} required/>
+          {validationErrors.password && <p style={{color: 'red'}}>{validationErrors.password}</p>}
+          <br/>
+          <input type="text" name="phone_number" placeholder="Phone Number" value={formData.phone_number}
+                 onChange={handleChange} required/>
+          {validationErrors.phone_number && <p style={{color: 'red'}}>{validationErrors.phone_number}</p>}
+          <br/>
+          <button type="submit">Signup</button>
+          <p> Already have an account? <a href="/login">Sign in</a></p>
+          <p>Return to <a href="/">homepage</a></p>
+
+        </form>
+      </div>
   );
 };
 

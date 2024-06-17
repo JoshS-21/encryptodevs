@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import io from 'socket.io-client';
+import logo from './Encryptodev_Logo.png';
+
 
 const PrivateMessageForm = () => {
   const [recipient, setRecipient] = useState('');
@@ -47,35 +49,36 @@ const PrivateMessageForm = () => {
   };
 
   return (
-    <div>
-      <input
-        type="text"
-        id="send_to_username"
-        value={recipient}
-        onChange={(e) => setRecipient(e.target.value)}
-        placeholder="Recipient Username"
-      />
-      <input
-        type="text"
-        id="private_message"
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        placeholder="Private Message"
-      />
-      <input
-        type="text"
-        id="send_from_username"
-        value={sender}
-        onChange={(e) => setSender(e.target.value)}
-        placeholder="Sender Username"
-      />
-      <button onClick={handleSendPrivateMessage}>Send Private Message</button>
-    </div>
+      <div>
+        <img src={logo} alt="Encryptodevs_Logo" style={{width: '200px', height: 'auto'}}/>
+        <input
+            type="text"
+            id="send_to_username"
+            value={recipient}
+            onChange={(e) => setRecipient(e.target.value)}
+            placeholder="Recipient Username"
+        />
+        <input
+            type="text"
+            id="private_message"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder="Private Message"
+        />
+        <input
+            type="text"
+            id="send_from_username"
+            value={sender}
+            onChange={(e) => setSender(e.target.value)}
+            placeholder="Sender Username"
+        />
+        <button onClick={handleSendPrivateMessage}>Send Private Message</button>
+        <p>Return to <a href="/landing">main page</a></p>
+      </div>
   );
 };
 
 export default PrivateMessageForm;
-
 
 
 // import React, { useEffect, useRef, useState } from 'react';

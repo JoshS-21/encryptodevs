@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import io from 'socket.io-client';
+import logo from './Encryptodev_Logo.png';
 const Chat = () => {
   const [socket, setSocket] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -41,19 +42,21 @@ const Chat = () => {
     }
   }, [messages]);
   return (
-    <div>
-      <div className="messages" ref={messageContainerRef}>
-        {messages.map((message, index) => (
-          <p key={index}>{message}</p>
-        ))}
+      <div>
+        <img src={logo} alt="Encryptodevs_Logo" style={{width: '200px', height: 'auto'}}/>
+        <div className="messages" ref={messageContainerRef}>
+          {messages.map((message, index) => (
+              <p key={index}>{message}</p>
+          ))}
+        </div>
+        <input
+            type="text"
+            id="messageInput"
+            onKeyDown={handleMessageSend}
+            placeholder="Type your message..."
+        />
+        <p>Return to <a href="/landing">main page</a></p>
       </div>
-      <input
-        type="text"
-        id="messageInput"
-        onKeyDown={handleMessageSend}
-        placeholder="Type your message..."
-      />
-    </div>
   );
 };
 export default Chat;
