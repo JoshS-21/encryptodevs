@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { io } from 'socket.io-client';
+import io from 'socket.io-client';
 
 const PrivateMessageForm = () => {
   const [recipient, setRecipient] = useState('');
@@ -8,28 +8,32 @@ const PrivateMessageForm = () => {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    const newSocket = io();
+    const serverUrl = 'http://localhost:5000'; // Replace with your server URL and port
+    const newSocket = io(serverUrl);
     setSocket(newSocket);
 
     newSocket.on('connect', () => {
       newSocket.emit('connected', newSocket.id);
-      console.log(`You're now connected on ${newSocket.id}`);
     });
 
     newSocket.on('new_private_message', (msg) => {
       alert(msg);
     });
 
-    // return () => {
-    //   newSocket.disconnect();
-    // };
+    return () => {
+      newSocket.disconnect();
+    };
   }, []);
 
   const handleSendPrivateMessage = () => {
-    socket.emit('private_message', { recipient, message, sender });
-    setRecipient('Josh');
-    setMessage('Hello Test');
-    setSender('Ben');
+    if (socket) {
+      socket.emit('private_message', {'recipient': recipient, 'message': message, 'sender': sender});
+      setRecipient('');
+      setMessage('');
+      setSender('');
+    } else {
+      console.error('Socket is not initialized');
+    }
   };
 
   return (
