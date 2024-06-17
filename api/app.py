@@ -35,6 +35,15 @@ user_collection = db['users']
 # Enable CORS for all routes
 CORS(app)
 
+def validate_password(password):
+    """Validate password against specified criteria."""
+    if len(password) < 7:
+        return False, 'Password must be at least 7 characters long'
+    if not any(char.isupper() for char in password):
+        return False, 'Password must include at least one uppercase letter'
+    if not any(char in '!@£_%-' for char in password):
+        return False, 'Password must include at least one of !@£_%-'
+    return True, ''
 
 # Sign-up route
 @app.route('/signup', methods=['POST'])
@@ -46,6 +55,28 @@ def signup():
     password = user_data.get('password')
     phone_number = user_data.get('phone_number')
 
+    # Validate phone number
+    if not phone_number.isdigit() or len(phone_number) != 11:
+        return jsonify({'message': 'Phone number must be exactly 11 digits long'}), 400
+
+    # Validate password
+    is_valid_password, password_message = validate_password(password)
+    if not is_valid_password:
+        return jsonify({'message': password_message}), 400
+
+    # Check if the username, phone number, or email already exists
+    collection = db['users']
+    existing_user = collection.find_one({"$or": [{"username": username}, {"phone_number": phone_number}, {"email": email}]})
+
+    if existing_user:
+        if existing_user.get('username') == username:
+            return jsonify({'message': 'Username already exists'}), 400
+        elif existing_user.get('phone_number') == phone_number:
+            return jsonify({'message': 'Phone number already exists'}), 400
+        elif existing_user.get('email') == email:
+            return jsonify({'message': 'Email already exists'}), 400
+
+    # Hash the password
     hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
 
     # Save user data to the database
@@ -75,13 +106,15 @@ def login():
     if user and bcrypt.check_password_hash(user['password'], password):
         user_obj = User(str(user['_id']), username)
         user_obj.set_online(True)  # Set user online upon successful login
-        collection.update_one({'_id': user['_id']}, {'$set': {'is_online': True, 'last_seen': None}})
+        collection.update_one({'_id': ObjectId(user['_id'])}, {'$set': {'is_online': True, 'last_seen': None}})
         access_token = create_access_token(identity=str(user['_id']))
         users[username] = {'id': user['_id'], 'email': user['email'], 'phone_number': user['phone_number'],
                            'session_id': None, 'access_token': access_token}
         # print(users)
         return jsonify(
             {'message': 'User logged in successfully', 'user_id': str(user['_id']), 'token': access_token}), 200
+    elif user is None:
+        return jsonify({'message': 'Username not found. Please sign up to create an account.'}), 401
     else:
         return jsonify({'message': 'Invalid username or password'}), 401
 
