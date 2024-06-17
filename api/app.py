@@ -1,22 +1,21 @@
-import os
-from flask import Flask, request, jsonify, session
-from flask_login import LoginManager, login_user, logout_user, UserMixin, current_user
+from flask import Flask, request, jsonify
 from pymongo import MongoClient
 from bson import ObjectId
-from dotenv import load_dotenv
 from flask_cors import CORS
-
-app = Flask(__name__)
-app.secret_key = os.getenv('SECRET_KEY')
-
-# Initialize the LoginManager
-login_manager = LoginManager()
-login_manager.init_app(app)
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from datetime import datetime, timezone
+import os
+from dotenv import load_dotenv
+from user import User
 
 # Load environment variables from .env file
 load_dotenv()
 
-# MongoDB connection string and database name from .env file
+app = Flask(__name__)
+app.config["JWT_SECRET_KEY"] = os.getenv('JWT_SECRET_KEY')
+jwt = JWTManager(app)
+
+# MongoDB's connection string and database name from .env file
 connection_string = os.getenv('MONGODB_URL')
 encryptodevs = os.getenv('MONGODB_DATABASE')
 
@@ -24,22 +23,10 @@ encryptodevs = os.getenv('MONGODB_DATABASE')
 client = MongoClient(connection_string)
 db = client[encryptodevs]
 
-# Initialize CORS with your Flask app
+# Enable CORS for all routes
 CORS(app)
 
-class User(UserMixin):
-    def __init__(self, user_id):
-        self.id = user_id
 
-@login_manager.user_loader
-def load_user(user_id):
-    user_data = db['users'].find_one({"_id": ObjectId(user_id)})
-    if user_data:
-        return User(user_id)
-    return None
-
-
-# Sign-up route
 @app.route('/signup', methods=['POST'])
 def signup():
     user_data = request.json
@@ -56,40 +43,74 @@ def signup():
         "username": username,
         "email": email,
         "password": password,
-        "phone_number": phone_number
+        "phone_number": phone_number,
+        "is_online": False,  # Ensure default value for is_online
+        "last_seen": None  # Set last_seen to None at the time of signup
     })
-
     return jsonify({'message': 'User signed up successfully', 'user_id': str(result.inserted_id)}), 201
 
 
-# Login route
 @app.route('/login', methods=['POST'])
 def login():
-    try:
-        user_data = request.json
-        username = user_data.get('username')
-        password = user_data.get('password')
+    user_data = request.json
+    username = user_data.get('username')
+    password = user_data.get('password')
 
-        # Query the database to find the user by username
-        collection = db['users']
-        user = collection.find_one({'username': username})
+    collection = db['users']
+    user = collection.find_one({'username': username})
 
-        if user and user['password'] == password:
-            user_obj = User(str(user['_id']))
-            login_user(user_obj)
-            return jsonify({'message': 'User logged in successfully', 'user_id': str(user['_id'])}), 200
-        else:
-            return jsonify({'message': 'Invalid username or password'}), 401
-    except Exception as e:
-        return jsonify({'message': f'Error: {str(e)}'}), 500
+    if user and user['password'] == password:
+        user_obj = User(str(user['_id']), username)
+        user_obj.set_online(True)  # Set user online upon successful login
+        collection.update_one({'_id': user['_id']}, {'$set': {'is_online': True, 'last_seen': None}})
+        access_token = create_access_token(identity=str(user['_id']))
+
+        return jsonify(
+            {'message': 'User logged in successfully', 'user_id': str(user['_id']), 'token': access_token}), 200
+    else:
+        return jsonify({'message': 'Invalid username or password'}), 401
 
 
-# Logout route
 @app.route('/logout', methods=['POST'])
+@jwt_required()
 def logout():
-    session.clear()
-    logout_user()
+    current_user_id = get_jwt_identity()
+    db['users'].update_one(
+        {'_id': ObjectId(current_user_id)},
+        {'$set': {'is_online': False, 'last_seen': datetime.now(timezone.utc).isoformat()}}
+    )
     return jsonify({'message': 'User logged out successfully'}), 200
+
+
+@app.route('/user-status', methods=['GET'])
+@jwt_required()
+def user_status():
+    current_user_id = get_jwt_identity()
+    user = db['users'].find_one({'_id': ObjectId(current_user_id)})
+
+    if user:
+        return jsonify({
+            'username': user['username'],
+            'is_online': user.get('is_online', False),
+            'last_seen': user.get('last_seen', 'N/A')
+        }), 200
+    else:
+        return jsonify({'message': 'User not found'}), 404
+
+
+@app.route('/users', methods=['GET'])
+@jwt_required()
+def get_all_users():
+    users = db['users'].find({}, {'_id': 1, 'username': 1, 'is_online': 1, 'last_seen': 1})
+    user_list = []
+    for user in users:
+        user_list.append({
+            'user_id': str(user['_id']),
+            'username': user['username'],
+            'is_online': user.get('is_online', False),
+            'last_seen': user.get('last_seen', 'N/A')
+        })
+    return jsonify(user_list), 200
 
 
 if __name__ == '__main__':

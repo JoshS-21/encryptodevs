@@ -34,3 +34,6 @@ Werkzeug==3.0.3
 wsproto==1.2.0
 zope.event==5.0
 zope.interface==6.4.post2
+pytest~=8.2.2
+pytest-xprocess~=1.0.2
+pytz~=2024.1
