@@ -9,7 +9,7 @@ const Login = () => {
 
   const handleChange = (e) => {
     setFormData({
-      formData,
+      ...formData, // Spread previous state to retain other keys
       [e.target.name]: e.target.value
     });
   };
