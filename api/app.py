@@ -1,16 +1,17 @@
-from flask import Flask, request, jsonify
-from pymongo import MongoClient
-from bson import ObjectId
-from flask_cors import CORS
-from flask_socketio import SocketIO, send, emit
-import time
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, verify_jwt_in_request, \
-    decode_token
-from flask_bcrypt import Bcrypt
 import os
-from dotenv import load_dotenv
-from user import User
+import time
 from functools import wraps
+
+from bson import ObjectId
+from dotenv import load_dotenv
+from flask import Flask, request, jsonify
+from flask_bcrypt import Bcrypt
+from flask_cors import CORS
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, decode_token
+from flask_socketio import SocketIO, emit
+from pymongo import MongoClient
+
+from user import User
 
 # Load environment variables from .env file
 load_dotenv()
@@ -34,6 +35,7 @@ user_collection = db['users']
 # Enable CORS for all routes
 CORS(app)
 
+
 def validate_password(password):
     """Validate password against specified criteria."""
     if len(password) < 7:
@@ -43,6 +45,7 @@ def validate_password(password):
     if not any(char in '!@£_%-' for char in password):
         return False, 'Password must include at least one of !@£_%-'
     return True, ''
+
 
 # Sign-up route
 @app.route('/signup', methods=['POST'])
@@ -65,7 +68,8 @@ def signup():
 
     # Check if the username, phone number, or email already exists
     collection = db['users']
-    existing_user = collection.find_one({"$or": [{"username": username}, {"phone_number": phone_number}, {"email": email}]})
+    existing_user = collection.find_one(
+        {"$or": [{"username": username}, {"phone_number": phone_number}, {"email": email}]})
 
     if existing_user:
         if existing_user.get('username') == username:
@@ -164,7 +168,10 @@ def get_all_users():
     return jsonify(user_list), 200
 
 
-# Private Messaging Handler Below
+# ------- Private Messaging Handler -------- #
+users = {}
+
+
 def socket_auth_required(f):
     @wraps(f)
     def wrapped(*args, **kwargs):
@@ -195,22 +202,14 @@ def handle_connected(data):
     emit('response', {'message': f'User {user_id} connected with socket ID: {socket_id}'})
 
 
-users = {}
-
-
-# @socketio.on('username')
-# def receive_username(username):
-#     users[username] = request.sid
-#     # users.append({username : request.sid})
-#     print(users)
-#     print('Username added!')
-
-
 @socketio.on('private_message')
 @socket_auth_required
 def private_message(payload):
+    print(payload)
+    print(users)
     user_id = request.user_id
     username = user_collection.find_one({'_id': ObjectId(user_id)})['username']
+    print(username)
     recipient_session_id = users[payload['recipient']]['session_id']
     sender_session_id = users[username]['session_id']
     message_content = payload['message']
@@ -223,6 +222,4 @@ def private_message(payload):
 
 
 if __name__ == '__main__':
-    # app.run(debug=True)
-    # app.run(debug=True, port=int(os.environ.get('PORT', 5001)))
     socketio.run(app, host='0.0.0.0', port=5000, allow_unsafe_werkzeug=True, debug=True)
