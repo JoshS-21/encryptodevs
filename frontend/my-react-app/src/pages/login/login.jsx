@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';  // Import Link from react-router-dom
 import axios from 'axios';
 import logo from './Encryptodev_Logo.png';
 
@@ -36,36 +37,38 @@ const Login = () => {
   };
 
   return (
-      <div>
-          <h2>Login</h2>
-          <img src={logo} alt="Encryptodevs_Logo" style={{width: '200px', height: 'auto'}}/>
-          <form onSubmit={handleSubmit}>
-              <input
-                  type="text"
-                  name="username"
-                  placeholder="Username"
-                  value={formData.username}
-                  onChange={handleChange}
-                  autoComplete="username"
-                  required
-              />
-              <br/>
-              <input
-                  type="password"
-                  name="password"
-                  placeholder="Password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  autoComplete="current-password"
-                  required
-              />
-              <br/>
-              <button type="submit">Login</button>
-          </form>
-          {errorMessage && <p style={{color: 'red'}}>{errorMessage}</p>}
-          <p>Haven't got an account? <a href="/signup">Sign up</a></p>
-          <p>Return to <a href="/">homepage</a></p>
-      </div>
+
+    <div>
+      <h2>Login</h2>
+    <img src={logo} alt="Encryptodevs_Logo" style={{width: '200px', height: 'auto'}}/>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          name="username"
+          placeholder="Username"
+          value={formData.username}
+          onChange={handleChange}
+          autoComplete="username"
+          required
+        />
+        <br />
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          value={formData.password}
+          onChange={handleChange}
+          autoComplete="current-password"
+          required
+        />
+        <br />
+        <button type="submit">Login</button>
+      </form>
+      {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+      <br />
+      <Link to="/forgot_password">Forgot Password?</Link>  
+    </div>
+
   );
 };
 

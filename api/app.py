@@ -2,14 +2,21 @@ from flask import Flask, request, jsonify
 from pymongo import MongoClient
 from bson import ObjectId
 from flask_cors import CORS
+
 from flask_socketio import SocketIO, send, emit
-import time
+import time, timedelta
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, decode_token
 from flask_bcrypt import Bcrypt
 import os
 from dotenv import load_dotenv
 from user import User
+
+import uuid
+import requests   
+from mailjet_rest import Client
+
 from functools import wraps
+
 
 
 # Load environment variables from .env file
@@ -24,7 +31,12 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 # MongoDB's connection string and database name from .env file
 connection_string = os.getenv('MONGODB_URL')
 encryptodevs = os.getenv('MONGODB_DATABASE')
-
+MAILGUN_API_KEY = os.getenv('MAILGUN_API_KEY')
+MAILGUN_DOMAIN = os.getenv('MAILGUN_DOMAIN')
+MAILGUN_FROM_EMAIL = os.getenv('MAILGUN_FROM_EMAIL')
+MAILJET_API_KEY = os.getenv('MAILJET_API_KEY')
+MAILJET_API_SECRET = os.getenv('MAILJET_API_SECRET')
+MAILJET_FROM_EMAIL = os.getenv('MAILJET_FROM_EMAIL')
 # Initialize the MongoClient
 client = MongoClient(connection_string)
 db = client[encryptodevs]
@@ -37,16 +49,19 @@ CORS(app)
 
 def validate_password(password):
     """Validate password against specified criteria."""
+    requirements = []
     if len(password) < 7:
-        return False, 'Password must be at least 7 characters long'
+        requirements.append('Password must be at least 7 characters long')
     if not any(char.isupper() for char in password):
-        return False, 'Password must include at least one uppercase letter'
+        requirements.append('Password must include at least one uppercase letter')
     if not any(char in '!@£_%-' for char in password):
-        return False, 'Password must include at least one of !@£_%-'
-    return True, ''
+        requirements.append('Password must include at least one of !@£_%-')
+    return len(requirements) == 0, ', '.join(requirements)
+
 
 
 # Sign-up route
+
 @app.route('/signup', methods=['POST'])
 def signup():
     user_data = request.json
@@ -95,7 +110,10 @@ def signup():
     return jsonify({'message': 'User signed up successfully', 'user_id': str(result.inserted_id)}), 201
 
 
+
+
 # Login route
+
 @app.route('/login', methods=['POST'])
 def login():
     user_data = request.json
@@ -166,6 +184,94 @@ def get_all_users():
         })
     return jsonify(user_list), 200
 
+@app.route('/forgot_password', methods=['POST'])
+def forgot_password():
+    data = request.json
+    email = data.get('email')
+    user = db['users'].find_one({'email': email})
+
+    if not user:
+        return jsonify({'message': 'Email not found'}), 404
+
+    reset_token = str(uuid.uuid4())
+    reset_token_expiration = datetime.utcnow() + timedelta(hours=1)
+
+    db['users'].update_one(
+        {'_id': user['_id']},
+        {'$set': {
+            'reset_token': reset_token,
+            'reset_token_expiration': reset_token_expiration
+        }}
+    )
+
+    # Send password reset email with user's name
+    send_reset_email(email, reset_token, user['name'])
+
+    return jsonify({'message': 'Password reset email sent'}), 200
+
+@app.route('/reset_password', methods=['POST'])
+def reset_password():
+    data = request.json
+    reset_token = data.get('reset_token')
+    new_password = data.get('new_password')
+
+    # Validate the new password
+    is_valid, message = validate_password(new_password)
+    if not is_valid:
+        return jsonify({'message': message}), 400
+
+    user = db['users'].find_one({'reset_token': reset_token})
+
+    if not user or user['reset_token_expiration'] < datetime.utcnow():
+        return jsonify({'message': 'Invalid or expired reset token'}), 400
+
+    hashed_password = bcrypt.generate_password_hash(new_password).decode('utf-8')
+
+    db['users'].update_one(
+        {'_id': user['_id']},
+        {'$set': {
+            'password': hashed_password,
+            'reset_token': None,
+            'reset_token_expiration': None
+        }}
+    )
+
+    return jsonify({'message': 'Password reset successful'}), 200
+
+# Function to send password reset email using Mailjet
+def send_reset_email(to_email, token, user_name):
+    reset_link = f'http://localhost:3000/reset/{token}'
+    subject = 'Reset your password'
+    body = f'Hi {user_name},\n\nClick the link below to reset your password:\n\n{reset_link}'
+
+    response = requests.post(
+        'https://api.mailjet.com/v3.1/send',
+        auth=(MAILJET_API_KEY, MAILJET_API_SECRET),
+        json={
+            'Messages': [
+                {
+                    "From": {
+                        "Email": MAILJET_FROM_EMAIL,
+                        "Name": "Encryptodevs"
+                    },
+                    "To": [
+                        {
+                            "Email": to_email,
+                            "Name": user_name
+                        }
+                    ],
+                    "Subject": subject,
+                    "TextPart": body,
+                }
+            ]
+        }
+    )
+
+    if response.status_code == 200:
+        print('Password reset email sent successfully.')
+    else:
+        print(f'Failed to send password reset email: {response.status_code}')
+        print(response.text)
 
 # Private Messaging Handler Below
 def socket_auth_required(f):

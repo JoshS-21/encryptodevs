@@ -6,3 +6,4 @@ def validate_password(password):
     if not re.search(r"[!£$%_-]", password):
         return False, "Password must contain at least one special character (!£$%_-)"
     return True, ""
+
