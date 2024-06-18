@@ -2,15 +2,23 @@ from flask import Flask, request, jsonify
 from pymongo import MongoClient
 from bson import ObjectId
 from flask_cors import CORS
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
-from datetime import datetime, timezone, timedelta
+
+from flask_socketio import SocketIO, send, emit
+import time, timedelta
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, decode_token
 from flask_bcrypt import Bcrypt
 import os
 from dotenv import load_dotenv
 from user import User
+
 import uuid
 import requests   
 from mailjet_rest import Client
+
+from functools import wraps
+
+
+
 # Load environment variables from .env file
 load_dotenv()
 
@@ -18,6 +26,7 @@ app = Flask(__name__)
 app.config["JWT_SECRET_KEY"] = os.getenv('JWT_SECRET_KEY')
 jwt = JWTManager(app)
 bcrypt = Bcrypt(app)
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 # MongoDB's connection string and database name from .env file
 connection_string = os.getenv('MONGODB_URL')
@@ -31,6 +40,9 @@ MAILJET_FROM_EMAIL = os.getenv('MAILJET_FROM_EMAIL')
 # Initialize the MongoClient
 client = MongoClient(connection_string)
 db = client[encryptodevs]
+message_collection = db['messages']
+user_collection = db['users']
+
 
 # Enable CORS for all routes
 CORS(app)
@@ -46,7 +58,10 @@ def validate_password(password):
         requirements.append('Password must include at least one of !@£_%-')
     return len(requirements) == 0, ', '.join(requirements)
 
-# Signup endpoint
+
+
+# Sign-up route
+
 @app.route('/signup', methods=['POST'])
 def signup():
     user_data = request.json
@@ -67,7 +82,8 @@ def signup():
 
     # Check if the username, phone number, or email already exists
     collection = db['users']
-    existing_user = collection.find_one({"$or": [{"username": username}, {"phone_number": phone_number}, {"email": email}]})
+    existing_user = collection.find_one(
+        {"$or": [{"username": username}, {"phone_number": phone_number}, {"email": email}]})
 
     if existing_user:
         if existing_user.get('username') == username:
@@ -81,6 +97,7 @@ def signup():
     hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
 
     # Save user data to the database
+    collection = db['users']
     result = collection.insert_one({
         "name": name,
         "username": username,
@@ -90,8 +107,12 @@ def signup():
         "is_online": False,  # Ensure default value for is_online
         "last_seen": None  # Set last_seen to None at the time of signup
     })
-
     return jsonify({'message': 'User signed up successfully', 'user_id': str(result.inserted_id)}), 201
+
+
+
+
+# Login route
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -107,7 +128,9 @@ def login():
         user_obj.set_online(True)  # Set user online upon successful login
         collection.update_one({'_id': ObjectId(user['_id'])}, {'$set': {'is_online': True, 'last_seen': None}})
         access_token = create_access_token(identity=str(user['_id']))
-
+        users[username] = {'id': user['_id'], 'email': user['email'], 'phone_number': user['phone_number'],
+                           'session_id': None, 'access_token': access_token}
+        # print(users)
         return jsonify(
             {'message': 'User logged in successfully', 'user_id': str(user['_id']), 'token': access_token}), 200
     elif user is None:
@@ -115,14 +138,19 @@ def login():
     else:
         return jsonify({'message': 'Invalid username or password'}), 401
 
+
+# Logout route
 @app.route('/logout', methods=['POST'])
 @jwt_required()
 def logout():
     current_user_id = get_jwt_identity()
+    username = user_collection.find_one({'_id': ObjectId(current_user_id)})['username']
+    users.pop(username, None)
     db['users'].update_one(
         {'_id': ObjectId(current_user_id)},
-        {'$set': {'is_online': False, 'last_seen': datetime.now(timezone.utc).isoformat()}}
+        {'$set': {'is_online': False, 'last_seen': time.strftime('%Y-%m-%d %H:%M:%S')}}
     )
+
     return jsonify({'message': 'User logged out successfully'}), 200
 
 
@@ -245,5 +273,65 @@ def send_reset_email(to_email, token, user_name):
         print(f'Failed to send password reset email: {response.status_code}')
         print(response.text)
 
+# Private Messaging Handler Below
+def socket_auth_required(f):
+    @wraps(f)
+    def wrapped(*args, **kwargs):
+        try:
+            token = request.args.get('token')
+            if token:
+                decoded_token = decode_token(token)
+                user_id = decoded_token['sub']
+                request.user_id = user_id  # Attach user_id to request
+                return f(*args, **kwargs)
+            else:
+                raise RuntimeError('Missing token')
+        except Exception as e:
+            emit('error', {'message': str(e)})
+            return
+
+    return wrapped
+
+
+@socketio.on('connected')
+@socket_auth_required
+def handle_connected(data):
+    user_id = request.user_id
+    username = user_collection.find_one({'_id': ObjectId(user_id)})['username']
+    socket_id = data['socket_id']
+    users[username]['session_id'] = str(socket_id)
+    print(users)
+    emit('response', {'message': f'User {user_id} connected with socket ID: {socket_id}'})
+
+
+users = {}
+
+
+# @socketio.on('username')
+# def receive_username(username):
+#     users[username] = request.sid
+#     # users.append({username : request.sid})
+#     print(users)
+#     print('Username added!')
+
+
+@socketio.on('private_message')
+@socket_auth_required
+def private_message(payload):
+    user_id = request.user_id
+    username = user_collection.find_one({'_id': ObjectId(user_id)})['username']
+    recipient_session_id = users[payload['recipient']]['session_id']
+    sender_session_id = users[username]['session_id']
+    message_content = payload['message']
+    message_timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
+    message_collection.insert_one(
+        {"content": message_content, "sender_id": sender_session_id, "recipient_id": recipient_session_id,
+         "timestamp": message_timestamp})
+    emit('new_private_message', message_content, room=recipient_session_id)
+    emit('new_private_message', message_content, room=sender_session_id)
+
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    # app.run(debug=True)
+    # app.run(debug=True, port=int(os.environ.get('PORT', 5001)))
+    socketio.run(app, host='0.0.0.0', port=5000, allow_unsafe_werkzeug=True, debug=True)

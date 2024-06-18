@@ -1,5 +1,5 @@
-from datetime import datetime, timezone
 from bson import ObjectId
+import time
 
 
 class User:
@@ -13,7 +13,7 @@ class User:
         self.is_online = is_online
 
     def update_last_seen(self, db):
-        self.last_seen = datetime.now(timezone.utc)  # Get the current time in UTC
+        self.last_seen = time.strftime('%Y-%m-%d %H:%M:%S')  # Get the current time in UTC
         db['users'].update_one(
             {'_id': ObjectId(self.id)},
             {'$set': {'last_seen': self.last_seen}}

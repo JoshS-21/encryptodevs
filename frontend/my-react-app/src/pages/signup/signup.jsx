@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+
 import './signup.css';
+
+import logo from "../landing_page/Encryptodev_Logo.png";
+
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -108,8 +112,10 @@ const Signup = () => {
   };
 
   return (
+
     <div className="signup-container">
       <h2>Signup</h2>
+       <img src={logo} alt="Encryptodevs_Logo" style={{width: '200px', height: 'auto'}}/>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <input type="text" name="name" placeholder="Name" value={formData.name} onChange={handleChange} required />
@@ -146,6 +152,7 @@ const Signup = () => {
         </div>
       </form>
     </div>
+
   );
 };
 

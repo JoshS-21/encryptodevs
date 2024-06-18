@@ -3,6 +3,8 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; //Styling package
 import { faCircle } from '@fortawesome/free-solid-svg-icons'; //Styling for icon status
+import logo from './Encryptodev_Logo.png';
+
 
 const Landing = () => {
   const [userData, setUserData] = useState(null);
@@ -55,7 +57,7 @@ const Landing = () => {
         last_seen: user.user_id === userData?.user_id ? new Date().toISOString() : user.last_seen,
       })));
 
-      navigate('/login');
+      navigate('/');
     } else {
       console.error('Logout failed');
     }
@@ -75,38 +77,40 @@ const Landing = () => {
   };
 
   return (
-    <div>
-      <h2>Welcome to the Landing Page</h2>
-      {userData ? (
-        <div>
-          <p>Logged in as: {userData.username}</p>
-          <p>
-            Status:
-            <FontAwesomeIcon
-              icon={faCircle}
-              style={{ color: userData.is_online ? 'green' : 'red', marginLeft: '8px' }}
-            />
-            {userData.is_online ? 'Online' : `Offline (Last seen: ${formatLastSeen(userData.last_seen)})`}
-          </p>
-          <button onClick={handleLogout}>Logout</button>
-        </div>
-      ) : (
-        <p>User data is not available</p>
-      )}
-      <h3>All Users:</h3>
-      <ul>
-        {users.map(user => (
-          <li key={user.user_id}>
-            {user.username} -
-            <FontAwesomeIcon
-              icon={faCircle}
-              style={{ color: user.is_online ? 'green' : 'red', marginLeft: '8px' }}
-            />
-            {user.is_online ? 'Online' : `Offline (Last seen: ${formatLastSeen(user.last_seen)})`}
-          </li>
-        ))}
-      </ul>
-    </div>
+      <div>
+        <h2>Welcome to the Landing Page</h2>
+        <img src={logo} alt="Encryptodevs_Logo" style={{width: '200px', height: 'auto'}}/>
+        {userData ? (
+            <div>
+              <p>Logged in as: {userData.username}</p>
+              <p>
+                Status:
+                <FontAwesomeIcon
+                    icon={faCircle}
+                    style={{color: userData.is_online ? 'green' : 'red', marginLeft: '8px'}}
+                />
+                {userData.is_online ? 'Online' : `Offline (Last seen: ${formatLastSeen(userData.last_seen)})`}
+              </p>
+              <button onClick={handleLogout}>Logout</button>
+            </div>
+        ) : (
+            <p>User data is not available</p>
+        )}
+        <h3>All Users:</h3>
+        <ul>
+          {users.map(user => (
+              <li key={user.user_id}>
+                {user.username} -
+                <FontAwesomeIcon
+                    icon={faCircle}
+                    style={{color: user.is_online ? 'green' : 'red', marginLeft: '8px'}}
+                />
+                {user.is_online ? 'Online' : `Offline (Last seen: ${formatLastSeen(user.last_seen)})`}
+              </li>
+          ))}
+        </ul>
+         <a href="/test">Messages</a>
+      </div>
   );
 };
 

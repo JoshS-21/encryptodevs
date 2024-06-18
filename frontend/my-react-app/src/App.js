@@ -1,3 +1,4 @@
+
 import React from 'react';
 
 
@@ -11,11 +12,12 @@ import Landing from './pages/landing_page/landing';
 import ForgotPassword from './components/password/forgottenPassword';
 
 import ResetPassword from './components/password/resetPassword';
-
+import PrivateMessageForm from "./components/privateMessageForm.jsx";
 
 
 
 import "./App.css";
+
 
 
 
@@ -28,6 +30,7 @@ const App = () => {
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
+        <Route path="/test" element={<PrivateMessageForm />} />
         <Route path="/landing" element={<Landing />} />
         <Route path="/forgot_password" element={<ForgotPassword />} />
         <Route path="/reset/:token" element={<ResetPassword />} />
@@ -38,4 +41,4 @@ const App = () => {
   );
 };
 
-export default App;
+

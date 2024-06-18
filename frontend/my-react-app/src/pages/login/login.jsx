@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';  // Import Link from react-router-dom
 import axios from 'axios';
+import logo from './Encryptodev_Logo.png';
+
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -11,8 +13,8 @@ const Login = () => {
 
   const handleChange = (e) => {
     setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
+      ...formData, // Spread the current formData to maintain existing state
+      [e.target.name]: e.target.value // Update the specific field
     });
   };
 
@@ -35,8 +37,10 @@ const Login = () => {
   };
 
   return (
+
     <div>
       <h2>Login</h2>
+    <img src={logo} alt="Encryptodevs_Logo" style={{width: '200px', height: 'auto'}}/>
       <form onSubmit={handleSubmit}>
         <input
           type="text"
@@ -64,6 +68,7 @@ const Login = () => {
       <br />
       <Link to="/forgot_password">Forgot Password?</Link>  
     </div>
+
   );
 };
 
