@@ -10,8 +10,7 @@ import os
 from dotenv import load_dotenv
 from user import User
 from functools import wraps
-from google.oauth2 import id_token
-from google.auth.transport import requests as google_requests
+
 
 # Load environment variables from .env file
 load_dotenv()
@@ -32,57 +31,9 @@ db = client[encryptodevs]
 message_collection = db['messages']
 user_collection = db['users']
 
-#Google OAuth client ID
-CLIENT_ID = os.getenv('REACT_APP_GOOGLE_CLIENT_ID')
 
 # Enable CORS for all routes
 CORS(app)
-
-
-@app.route('/verify-google-token', methods=['POST'])
-@jwt_required()
-def verify_google_token():
-    # token = request.json.get('token')
-    # print(token)
-    # if not token:
-    #     return jsonify({'status': 'failure', 'message': 'Token is missing'}), 400
-
-    try:
-        # Verify the token using Google's OAuth2 library
-        idinfo = id_token.verify_oauth2_token(token, google_requests.Request(), CLIENT_ID)
-        print(idinfo)
-        user_id = idinfo['sub']
-        print(user_id)
-        email = idinfo.get('email', '')
-
-        # Check if user exists in the database; create if not
-        user = user_collection.find_one({'google_id': user_id})
-        if not user:
-            # Create a new user with Google ID and email (assuming you have a 'users' collection)
-            new_user = {
-                'google_id': user_id,
-                'email': email,
-                'username': email.split('@')[0],  # Example: Use email username as default
-                'is_online': False,
-                'last_seen': None
-            }
-            user_collection.insert_one(new_user)
-
-        # Generate JWT token
-        access_token = create_access_token(identity=str(user_id))
-
-        # Return success response with JWT token and user information
-        return jsonify({
-            'status': 'success',
-            'message': 'Google token verified successfully',
-            'token': access_token,
-            'user_id': user_id
-        }), 200
-
-    except ValueError as e:
-        print(f"Error verifying Google token: {e}")
-        return jsonify({'status': 'failure', 'message': 'Invalid token'}), 400
-
 
 def validate_password(password):
     """Validate password against specified criteria."""
