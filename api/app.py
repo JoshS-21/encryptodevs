@@ -211,11 +211,12 @@ def private_message(payload):
     username = user_collection.find_one({'_id': ObjectId(user_id)})['username']
     print(username)
     recipient_session_id = users[payload['recipient']]['session_id']
+    recipient_id = user_collection.find_one({'username': payload['recipient']})['_id']
     sender_session_id = users[username]['session_id']
     message_content = payload['message']
     message_timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
     message_collection.insert_one(
-        {"content": message_content, "sender_id": sender_session_id, "recipient_id": recipient_session_id,
+        {"content": message_content, "sender_id": ObjectId(user_id), "recipient_id": recipient_id,
          "timestamp": message_timestamp})
     emit('new_private_message', message_content, room=recipient_session_id)
     emit('new_private_message', message_content, room=sender_session_id)
