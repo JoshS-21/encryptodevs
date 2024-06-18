@@ -161,13 +161,13 @@ def forgot_password():
     data = request.json
     email = data.get('email')
     user = db['users'].find_one({'email': email})
-    
+
     if not user:
         return jsonify({'message': 'Email not found'}), 404
-    
+
     reset_token = str(uuid.uuid4())
     reset_token_expiration = datetime.utcnow() + timedelta(hours=1)
-    
+
     db['users'].update_one(
         {'_id': user['_id']},
         {'$set': {
@@ -176,8 +176,8 @@ def forgot_password():
         }}
     )
 
-    # Send password reset email
-    send_reset_email(email, reset_token)
+    # Send password reset email with user's name
+    send_reset_email(email, reset_token, user['name'])
 
     return jsonify({'message': 'Password reset email sent'}), 200
 
@@ -193,10 +193,10 @@ def reset_password():
         return jsonify({'message': message}), 400
 
     user = db['users'].find_one({'reset_token': reset_token})
-    
+
     if not user or user['reset_token_expiration'] < datetime.utcnow():
         return jsonify({'message': 'Invalid or expired reset token'}), 400
-    
+
     hashed_password = bcrypt.generate_password_hash(new_password).decode('utf-8')
 
     db['users'].update_one(
@@ -209,11 +209,12 @@ def reset_password():
     )
 
     return jsonify({'message': 'Password reset successful'}), 200
+
 # Function to send password reset email using Mailjet
-def send_reset_email(to_email, token):
+def send_reset_email(to_email, token, user_name):
     reset_link = f'http://localhost:3000/reset/{token}'
     subject = 'Reset your password'
-    body = f'Click the link below to reset your password:\n\n{reset_link}'
+    body = f'Hi {user_name},\n\nClick the link below to reset your password:\n\n{reset_link}'
 
     response = requests.post(
         'https://api.mailjet.com/v3.1/send',
@@ -223,12 +224,12 @@ def send_reset_email(to_email, token):
                 {
                     "From": {
                         "Email": MAILJET_FROM_EMAIL,
-                        "Name": "Your Name"
+                        "Name": "Encryptodevs"
                     },
                     "To": [
                         {
                             "Email": to_email,
-                            "Name": "Recipient Name"
+                            "Name": user_name
                         }
                     ],
                     "Subject": subject,
@@ -242,40 +243,6 @@ def send_reset_email(to_email, token):
         print('Password reset email sent successfully.')
     else:
         print(f'Failed to send password reset email: {response.status_code}')
-        print(response.text)
-@app.route('/send_test_email', methods=['GET'])
-def send_test_email_route():
-    send_test_email()
-    return jsonify({'message': 'Test email sent'})
-
-def send_test_email():
-    response = requests.post(
-        'https://api.mailjet.com/v3.1/send',
-        auth=(MAILJET_API_KEY, MAILJET_API_SECRET),
-        json={
-            'Messages': [
-                {
-                    "From": {
-                        "Email": MAILJET_FROM_EMAIL,
-                        "Name": "Your Name"
-                    },
-                    "To": [
-                        {
-                            "Email": "aabdi7162@gmail.com",
-                            "Name": "Recipient Name"
-                        }
-                    ],
-                    "Subject": "Test Email",
-                    "TextPart": "This is a test email from Mailjet.",
-                }
-            ]
-        }
-    )
-
-    if response.status_code == 200:
-        print('Test email sent successfully.')
-    else:
-        print(f'Failed to send test email: {response.status_code}')
         print(response.text)
 
 if __name__ == '__main__':

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';  // Import Link from react-router-dom
 import axios from 'axios';
 
 const Login = () => {
@@ -60,6 +61,8 @@ const Login = () => {
         <button type="submit">Login</button>
       </form>
       {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+      <br />
+      <Link to="/forgot_password">Forgot Password?</Link>  
     </div>
   );
 };
