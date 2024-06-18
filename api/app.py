@@ -2,15 +2,16 @@ from flask import Flask, request, jsonify
 from pymongo import MongoClient
 from bson import ObjectId
 from flask_cors import CORS
-from flask_socketio import SocketIO, send, emit
+from flask_socketio import SocketIO, emit
 import time
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, verify_jwt_in_request, \
-    decode_token
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, decode_token
 from flask_bcrypt import Bcrypt
 import os
 from dotenv import load_dotenv
 from user import User
 from functools import wraps
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
 
 # Load environment variables from .env file
 load_dotenv()
@@ -31,8 +32,57 @@ db = client[encryptodevs]
 message_collection = db['messages']
 user_collection = db['users']
 
+#Google OAuth client ID
+CLIENT_ID = os.getenv('REACT_APP_GOOGLE_CLIENT_ID')
+
 # Enable CORS for all routes
 CORS(app)
+
+
+@app.route('/verify-google-token', methods=['POST'])
+@jwt_required()
+def verify_google_token():
+    # token = request.json.get('token')
+    # print(token)
+    # if not token:
+    #     return jsonify({'status': 'failure', 'message': 'Token is missing'}), 400
+
+    try:
+        # Verify the token using Google's OAuth2 library
+        idinfo = id_token.verify_oauth2_token(token, google_requests.Request(), CLIENT_ID)
+        print(idinfo)
+        user_id = idinfo['sub']
+        print(user_id)
+        email = idinfo.get('email', '')
+
+        # Check if user exists in the database; create if not
+        user = user_collection.find_one({'google_id': user_id})
+        if not user:
+            # Create a new user with Google ID and email (assuming you have a 'users' collection)
+            new_user = {
+                'google_id': user_id,
+                'email': email,
+                'username': email.split('@')[0],  # Example: Use email username as default
+                'is_online': False,
+                'last_seen': None
+            }
+            user_collection.insert_one(new_user)
+
+        # Generate JWT token
+        access_token = create_access_token(identity=str(user_id))
+
+        # Return success response with JWT token and user information
+        return jsonify({
+            'status': 'success',
+            'message': 'Google token verified successfully',
+            'token': access_token,
+            'user_id': user_id
+        }), 200
+
+    except ValueError as e:
+        print(f"Error verifying Google token: {e}")
+        return jsonify({'status': 'failure', 'message': 'Invalid token'}), 400
+
 
 def validate_password(password):
     """Validate password against specified criteria."""
@@ -43,6 +93,7 @@ def validate_password(password):
     if not any(char in '!@£_%-' for char in password):
         return False, 'Password must include at least one of !@£_%-'
     return True, ''
+
 
 # Sign-up route
 @app.route('/signup', methods=['POST'])
@@ -65,7 +116,8 @@ def signup():
 
     # Check if the username, phone number, or email already exists
     collection = db['users']
-    existing_user = collection.find_one({"$or": [{"username": username}, {"phone_number": phone_number}, {"email": email}]})
+    existing_user = collection.find_one(
+        {"$or": [{"username": username}, {"phone_number": phone_number}, {"email": email}]})
 
     if existing_user:
         if existing_user.get('username') == username:
