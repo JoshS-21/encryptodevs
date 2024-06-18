@@ -26,6 +26,7 @@ const Landing = () => {
 
             if (userResponse.status === 200) {
                 setUserData(userResponse.data);
+                console.log(userData);
             } else {
                 console.error('Failed to fetch user data');
                 navigate('/login');
@@ -47,7 +48,8 @@ const Landing = () => {
         if (!token) return;
 
         const headers = {headers: {Authorization: `Bearer ${token}`}};
-        const logoutResponse = await axios.post(`${process.env.REACT_APP_API_URL}/logout`, {}, headers);
+        const logoutResponse = await axios.post(`${process.env.REACT_APP_API_URL}/logout`,
+            {}, headers);
 
         if (logoutResponse.status === 200) {
             localStorage.removeItem('token');
@@ -56,6 +58,7 @@ const Landing = () => {
                 ...user,
                 is_online: user.user_id === userData?.user_id ? false : user.is_online,
                 last_seen: user.user_id === userData?.user_id ? new Date().toISOString() : user.last_seen,
+
             })));
 
             navigate('/');
@@ -76,6 +79,7 @@ const Landing = () => {
 
         return `on ${lastSeenDate.toLocaleDateString()} at ${lastSeenDate.toLocaleTimeString()}`;
     };
+
 
     return (
         <div>
@@ -114,54 +118,54 @@ const Landing = () => {
             <br/>
             <br/>
             <br/>
-            <DropdownMenu users={users}/>
+            <DropdownMenu userData={userData}/>
         </div>
     );
 };
 
 export default Landing;
 
-    // return (
-    //     <div>
-    //         <h2>Welcome to the Landing Page</h2>
-    //         <img src={logo} alt="Encryptodevs_Logo" style={{width: '200px', height: 'auto'}}/>
-    //         {userData ? (
-    //             <div>
-    //                 <p>Logged in as: {userData.username}</p>
-    //                 <p>
-    //                     Status:
-    //                     <FontAwesomeIcon
-    //                         icon={faCircle}
-    //                         style={{color: userData.is_online ? 'green' : 'red', marginLeft: '8px'}}
-    //                     />
-    //                     {userData.is_online ? 'Online' : `Offline (Last seen: ${formatLastSeen(userData.last_seen)})`}
-    //                 </p>
-    //                 <button onClick={handleLogout}>Logout</button>
-    //             </div>
-    //         ) : (
-    //             <p>User data is not available</p>
-    //     </div>
-    //     )}
-    //
-    //     <DropdownMenu users={users}/>
-    //     <h3>All Users:</h3>
-    //     <ul>
-    //         {users.map(user => (
-    //             <li key={user.user_id}>
-    //                 {user.username} -
-    //                 <FontAwesomeIcon
-    //                     icon={faCircle}
-    //                     style={{color: user.is_online ? 'green' : 'red', marginLeft: '8px'}}
-    //                 />
-    //                 {user.is_online ? 'Online' : `Offline (Last seen: ${formatLastSeen(user.last_seen)})`}
-    //             </li>
-    //         ))}
-    //     </ul>
-    //     <a href="/test">Messages</a>
-    // );
-    //
-    //     );
-    //
-    //
-    //
-    //     export default Landing;
+// return (
+//     <div>
+//         <h2>Welcome to the Landing Page</h2>
+//         <img src={logo} alt="Encryptodevs_Logo" style={{width: '200px', height: 'auto'}}/>
+//         {userData ? (
+//             <div>
+//                 <p>Logged in as: {userData.username}</p>
+//                 <p>
+//                     Status:
+//                     <FontAwesomeIcon
+//                         icon={faCircle}
+//                         style={{color: userData.is_online ? 'green' : 'red', marginLeft: '8px'}}
+//                     />
+//                     {userData.is_online ? 'Online' : `Offline (Last seen: ${formatLastSeen(userData.last_seen)})`}
+//                 </p>
+//                 <button onClick={handleLogout}>Logout</button>
+//             </div>
+//         ) : (
+//             <p>User data is not available</p>
+//     </div>
+//     )}
+//
+//     <DropdownMenu users={users}/>
+//     <h3>All Users:</h3>
+//     <ul>
+//         {users.map(user => (
+//             <li key={user.user_id}>
+//                 {user.username} -
+//                 <FontAwesomeIcon
+//                     icon={faCircle}
+//                     style={{color: user.is_online ? 'green' : 'red', marginLeft: '8px'}}
+//                 />
+//                 {user.is_online ? 'Online' : `Offline (Last seen: ${formatLastSeen(user.last_seen)})`}
+//             </li>
+//         ))}
+//     </ul>
+//     <a href="/test">Messages</a>
+// );
+//
+//     );
+//
+//
+//
+//     export default Landing;

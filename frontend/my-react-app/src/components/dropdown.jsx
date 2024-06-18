@@ -1,37 +1,48 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import './dropdown.css';
+import {useNavigate} from 'react-router-dom';
 
 
-const DropdownMenu = ({ users }) => {
-  const [isOpen, setIsOpen] = useState(false);
+const DropdownMenu = ({users, userData}) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const navigate = useNavigate(); // initialise the useNavigate hook
 
-  const toggleDropdown = () => {
-    setIsOpen(!isOpen);
-  };
+    const toggleDropdown = () => {
+        setIsOpen(!isOpen);
+    };
 
 
-  const handleItemClick = (user) => {
-    console.log(`You clicked on ${user.username}`);
+    const handleItemClick = (clickedUser) => {
+    console.log(`You clicked on ${clickedUser.username}`);
     setIsOpen(false);
+
+    // Navigate to the 'chat' page with query parameters
+    if (userData) {
+      navigate(`/chat?user1=${userData.username}&user2=${clickedUser.username}`);
+    } else {
+      console.error('Current user data is not available');
+    }
   };
 
-  return (
-    <div className="dropdown">
-      <div className="dropdown-toggle" onClick={toggleDropdown}>
-        Chat with...
-        <span className="caret"/>
-      </div>
-      {isOpen && (
-        <ul className="dropdown-menu">
-          {users.filter(user => user.is_online).map((user, index) => (
-            <li key={index} onClick={() => handleItemClick(user)}>
-              {user.username}
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
+    return (
+        <div className="dropdown">
+            <div className="dropdown-toggle" onClick={toggleDropdown}>
+                Chat with...
+                <span className="caret"/>
+            </div>
+            {isOpen && (
+                <ul className="dropdown-menu">
+                    {users
+            .filter(user => user.is_online && user.user_id !== userData.user_id)
+            .map((user, index) => (
+              <li key={index} onClick={() => handleItemClick(user)}>
+                {user.username}
+                        </li>
+                    ))}
+                </ul>
+            )}
+        </div>
+    );
 };
 
 export default DropdownMenu;

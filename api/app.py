@@ -113,7 +113,6 @@ def login():
         access_token = create_access_token(identity=str(user['_id']))
         users[username] = {'id': user['_id'], 'email': user['email'], 'phone_number': user['phone_number'],
                            'session_id': None, 'access_token': access_token}
-        # print(users)
         return jsonify(
             {'message': 'User logged in successfully', 'user_id': str(user['_id']), 'token': access_token}), 200
     elif user is None:
