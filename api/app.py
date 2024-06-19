@@ -214,8 +214,8 @@ def private_message(payload):
         message_collection.insert_one(
             {"content": message_content, "sender_id": ObjectId(user_id), "recipient_id": recipient_id,
              "timestamp": message_timestamp})
-        emit('new_private_message', message_content, room=recipient_session_id)
-        emit('new_private_message', message_content, room=sender_session_id)
+        emit('new_private_message', f'({username}) - {message_content}', room=recipient_session_id)
+        emit('new_private_message', f'({username}) - {message_content}', room=sender_session_id)
     except Exception as e:
         print("An error occurred:", str(e))
 
