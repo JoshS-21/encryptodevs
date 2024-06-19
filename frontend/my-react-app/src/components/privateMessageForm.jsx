@@ -7,6 +7,7 @@ import { useSearchParams } from 'react-router-dom';
 const PrivateMessageForm = () => {
   let [recipient, setRecipient] = useState('');
   const [message, setMessage] = useState('');
+  const [messages, setMessages] = useState([]);
   const [sender, setSender] = useState('');
   const [socket, setSocket] = useState(null);
   const [searchParams] = useSearchParams();
@@ -30,8 +31,12 @@ const PrivateMessageForm = () => {
       newSocket.emit('connected', { socket_id: newSocket.id });
     });
 
+    //
+
     newSocket.on('new_private_message', (msg) => {
-      alert(msg);
+      console.log('New private message received:', msg);
+      // Update messages state with the new message
+      setMessages(prevMessages => [...prevMessages, msg]);
     });
 
     return () => {
@@ -64,6 +69,15 @@ const PrivateMessageForm = () => {
         />
         <button onClick={handleSendPrivateMessage}>Send Private Message</button>
         <p>Return to <a href="/landing">main page</a></p>
+
+        <div>
+          <h3>Messages:</h3>
+          <ul>
+            {messages.map((msg, index) => (
+                <li key={index}>{msg}</li>
+            ))}
+          </ul>
+        </div>
       </div>
   );
 };
