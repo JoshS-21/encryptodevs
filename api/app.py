@@ -2,10 +2,12 @@ from flask import Flask, request, jsonify
 from pymongo import MongoClient
 from bson import ObjectId
 from flask_cors import CORS
+
 from flask_socketio import SocketIO, send, emit
 import time, timedelta
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, verify_jwt_in_request, \
     decode_token
+
 from flask_bcrypt import Bcrypt
 import os
 from dotenv import load_dotenv
@@ -116,18 +118,23 @@ def login():
     user = collection.find_one({'username': username})
 
     if user and bcrypt.check_password_hash(user['password'], password):
+        # Login successful
         user_obj = User(str(user['_id']), username)
         user_obj.set_online(True)  # Set user online upon successful login
         collection.update_one({'_id': ObjectId(user['_id'])}, {'$set': {'is_online': True, 'last_seen': None}})
         access_token = create_access_token(identity=str(user['_id']))
-        logged_in_users[username] = {'id': user['_id'], 'email': user['email'], 'phone_number': user['phone_number'],
-                                     'session_id': None, 'access_token': access_token}
-        return jsonify(
-            {'message': 'User logged in successfully', 'user_id': str(user['_id']), 'token': access_token}), 200
+
+        # Store user information in some session management (you might adjust this as per your app's architecture)
+        users[username] = {'id': user['_id'], 'email': user['email'], 'phone_number': user['phone_number'],
+                           'session_id': None, 'access_token': access_token}
+        return jsonify({'message': 'User logged in successfully', 'user_id': str(user['_id']), 'token': access_token}), 200
+
     elif user is None:
+        # Username not found
         return jsonify({'message': 'Username not found. Please sign up to create an account.'}), 401
     else:
-        return jsonify({'message': 'Invalid username or password'}), 401
+        # Incorrect password
+        return jsonify({'message': 'Incorrect password'}), 401
 
 
 # Logout route
