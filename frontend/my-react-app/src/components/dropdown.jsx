@@ -6,22 +6,27 @@ import {useNavigate} from 'react-router-dom';
 const DropdownMenu = ({users, userData}) => {
     const [isOpen, setIsOpen] = useState(false);
     const navigate = useNavigate(); // initialise the useNavigate hook
+    console.log(userData);
+    console.log(users);
 
+    // Toggle the dropdown menu
     const toggleDropdown = () => {
+        console.log(userData);
+        console.log(users);
         setIsOpen(!isOpen);
     };
 
 
     const handleItemClick = (clickedUser) => {
-    console.log(`You clicked on ${clickedUser.username}`);
-    setIsOpen(false);
+        console.log(`You clicked on ${clickedUser.username}`);
+        setIsOpen(false);
 
-    // Navigate to the 'chat' page with query parameters
-    if (userData) {
-      navigate(`/chat?user1=${userData.username}&user2=${clickedUser.username}`);
-    } else {
-      console.error('Current user data is not available');
-    }
+        // Navigate to the 'chat' page with query parameters
+        if (userData) {
+          navigate(`/chat?user1=${userData.username}&user2=${clickedUser.username}`);
+        } else {
+          console.error('Current user data is not available');
+        }
   };
 
     return (

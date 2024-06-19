@@ -43,6 +43,8 @@ const Landing = () => {
         fetchUserData();
     }, [navigate]);
 
+            console.log(users);
+
     const handleLogout = async () => {
         const token = localStorage.getItem('token');
         if (!token) return;
@@ -50,6 +52,7 @@ const Landing = () => {
         const headers = {headers: {Authorization: `Bearer ${token}`}};
         const logoutResponse = await axios.post(`${process.env.REACT_APP_API_URL}/logout`,
             {}, headers);
+
 
         if (logoutResponse.status === 200) {
             localStorage.removeItem('token');
@@ -118,7 +121,7 @@ const Landing = () => {
             <br/>
             <br/>
             <br/>
-            <DropdownMenu userData={userData}/>
+            <DropdownMenu userData={userData} users={users}/>
         </div>
     );
 };
