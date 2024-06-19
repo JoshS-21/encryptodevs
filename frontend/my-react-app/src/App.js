@@ -5,8 +5,8 @@ import SignUp from './pages/signup/signup';
 import Login from './pages/login/login';
 import HomePage from './pages/homepage/homepage';
 import Landing from './pages/landing_page/landing';
-import ForgotPassword from './components/password/forgottenPassword';
-import ResetPassword from './components/password/resetPassword';
+import ForgotPassword from './components/password/forgottenPassword/forgottenPassword';
+import ResetPassword from './components/password/resetPassword/resetPassword';
 import PrivateMessageForm from "./components/privateMessageForm.jsx";
 import "./App.css";
 
