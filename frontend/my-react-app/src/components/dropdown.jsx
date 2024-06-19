@@ -38,7 +38,7 @@ const DropdownMenu = ({users, userData}) => {
             {isOpen && (
                 <ul className="dropdown-menu">
                     {users
-            .filter(user => user.is_online && user.user_id !== userData.user_id)
+            .filter(user => user.is_online && user.username !== userData.username)
             .map((user, index) => (
               <li key={index} onClick={() => handleItemClick(user)}>
                 {user.username}
