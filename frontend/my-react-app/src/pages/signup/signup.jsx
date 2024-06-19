@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+
+import './signup.css';
+
 import logo from "../landing_page/Encryptodev_Logo.png";
+
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -10,6 +14,12 @@ const Signup = () => {
     email: '',
     password: '',
     phone_number: ''
+  });
+
+  const [passwordCriteria, setPasswordCriteria] = useState({
+    length: false,
+    uppercase: false,
+    specialChar: false
   });
 
   const [validationErrors, setValidationErrors] = useState({
@@ -33,6 +43,19 @@ const Signup = () => {
       ...validationErrors,
       [name]: ''
     });
+
+    // Validate password requirements as user types
+    if (name === 'password') {
+      validatePassword(value);
+    }
+  };
+
+  const validatePassword = (password) => {
+    setPasswordCriteria({
+      length: password.length >= 7,
+      uppercase: /[A-Z]/.test(password),
+      specialChar: /[!@£_%-]/.test(password)
+    });
   };
 
   const handleSubmit = (e) => {
@@ -46,11 +69,11 @@ const Signup = () => {
       setValidationErrors({ ...validationErrors, phone_number: '' });
     }
 
-    // Validate password requirements
-    if (!/^.*(?=.{7,})(?=.*[!@£_%-])(?=.*[A-Z]).*$/.test(formData.password)) {
+    // If any password criteria is not met, do not proceed
+    if (!passwordCriteria.length || !passwordCriteria.uppercase || !passwordCriteria.specialChar) {
       setValidationErrors({
         ...validationErrors,
-        password: 'Password must be at least 7 characters long, include at least one uppercase letter, and contain !@£_%- characters'
+        password: 'Password must meet all requirements'
       });
       return;
     } else {
@@ -89,35 +112,48 @@ const Signup = () => {
   };
 
   return (
-      <div>
-        <h2>Signup</h2>
-        <img src={logo} alt="Encryptodevs_Logo" style={{width: '200px', height: 'auto'}}/>
-        <form onSubmit={handleSubmit}>
-          <input type="text" name="name" placeholder="Name" value={formData.name} onChange={handleChange} required/>
-          <br/>
-          <input type="text" name="username" placeholder="Username" value={formData.username} onChange={handleChange}
-                 required/>
-          {validationErrors.username && <p style={{color: 'red'}}>{validationErrors.username}</p>}
-          <br/>
-          <input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleChange} required/>
-          {validationErrors.email && <p style={{color: 'red'}}>{validationErrors.email}</p>}
-          <br/>
-          <input type="password" name="password" placeholder="Password" value={formData.password}
-                 onChange={handleChange} required/>
-          {validationErrors.password && <p style={{color: 'red'}}>{validationErrors.password}</p>}
-          <br/>
-          <input type="text" name="phone_number" placeholder="Phone Number" value={formData.phone_number}
-                 onChange={handleChange} required/>
-          {validationErrors.phone_number && <p style={{color: 'red'}}>{validationErrors.phone_number}</p>}
-          <br/>
-          <button type="submit">Signup</button>
-          <p> Already have an account? <a href="/login">Sign in</a></p>
-          <p>Return to <a href="/">homepage</a></p>
 
-        </form>
-      </div>
+    <div className="signup-container">
+      <h2>Signup</h2>
+       <img src={logo} alt="Encryptodevs_Logo" style={{width: '200px', height: 'auto'}}/>
+      <form onSubmit={handleSubmit}>
+        <div className="form-group">
+          <input type="text" name="name" placeholder="Name" value={formData.name} onChange={handleChange} required />
+        </div>
+        <div className="form-group">
+          <input type="text" name="username" placeholder="Username" value={formData.username} onChange={handleChange} required />
+          {validationErrors.username && <p className="error-message">{validationErrors.username}</p>}
+        </div>
+        <div className="form-group">
+          <input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleChange} required />
+          {validationErrors.email && <p className="error-message">{validationErrors.email}</p>}
+        </div>
+        <div className="form-group">
+          <input type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} required />
+          {validationErrors.password && <p className="error-message">{validationErrors.password}</p>}
+          <ul className="password-criteria">
+            <li className={passwordCriteria.length ? 'met' : 'unmet'}>
+              {passwordCriteria.length && <span className="checkmark">✔</span>} Password must be at least 7 characters long
+            </li>
+            <li className={passwordCriteria.uppercase ? 'met' : 'unmet'}>
+              {passwordCriteria.uppercase && <span className="checkmark">✔</span>} Password must include at least one uppercase letter
+            </li>
+            <li className={passwordCriteria.specialChar ? 'met' : 'unmet'}>
+              {passwordCriteria.specialChar && <span className="checkmark">✔</span>} Password must include at least one of !@£_%- characters
+            </li>
+          </ul>
+        </div>
+        <div className="form-group">
+          <input type="text" name="phone_number" placeholder="Phone Number" value={formData.phone_number} onChange={handleChange} required />
+          {validationErrors.phone_number && <p className="error-message">{validationErrors.phone_number}</p>}
+        </div>
+        <div className="form-group">
+          <button type="submit">Signup</button>
+        </div>
+      </form>
+    </div>
+
   );
 };
 
 export default Signup;
-
