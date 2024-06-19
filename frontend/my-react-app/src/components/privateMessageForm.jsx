@@ -1,20 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import io from 'socket.io-client';
 import logo from './Encryptodev_Logo.png';
+import { useSearchParams } from 'react-router-dom';
 
 
 const PrivateMessageForm = () => {
-  const [recipient, setRecipient] = useState('');
+  let [recipient, setRecipient] = useState('');
   const [message, setMessage] = useState('');
+  const [messages, setMessages] = useState([]);
   const [sender, setSender] = useState('');
   const [socket, setSocket] = useState(null);
+  const [searchParams] = useSearchParams();
+
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
       console.error('No token found, redirecting to login.');
       window.location.href = '/login'; // Redirect to login if no token is found
-      return;
     }
 
     const serverUrl = 'http://localhost:5000'; // Replace with your server URL and port
@@ -28,8 +31,12 @@ const PrivateMessageForm = () => {
       newSocket.emit('connected', { socket_id: newSocket.id });
     });
 
+    //
+
     newSocket.on('new_private_message', (msg) => {
-      alert(msg);
+      console.log('New private message received:', msg);
+      // Update messages state with the new message
+      setMessages(prevMessages => [...prevMessages, msg]);
     });
 
     return () => {
@@ -39,6 +46,8 @@ const PrivateMessageForm = () => {
 
   const handleSendPrivateMessage = () => {
     if (socket) {
+      recipient = searchParams.get('user2')
+      console.log(recipient);
       socket.emit('private_message', { recipient, message, sender });
       setRecipient('');
       setMessage('');
@@ -53,98 +62,24 @@ const PrivateMessageForm = () => {
         <img src={logo} alt="Encryptodevs_Logo" style={{width: '200px', height: 'auto'}}/>
         <input
             type="text"
-            id="send_to_username"
-            value={recipient}
-            onChange={(e) => setRecipient(e.target.value)}
-            placeholder="Recipient Username"
-        />
-        <input
-            type="text"
             id="private_message"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder="Private Message"
         />
-        <input
-            type="text"
-            id="send_from_username"
-            value={sender}
-            onChange={(e) => setSender(e.target.value)}
-            placeholder="Sender Username"
-        />
         <button onClick={handleSendPrivateMessage}>Send Private Message</button>
         <p>Return to <a href="/landing">main page</a></p>
+
+        <div>
+          <h3>Messages:</h3>
+          <ul>
+            {messages.map((msg, index) => (
+                <li key={index}>{msg}</li>
+            ))}
+          </ul>
+        </div>
       </div>
   );
 };
 
 export default PrivateMessageForm;
-
-
-// import React, { useEffect, useRef, useState } from 'react';
-// import io from 'socket.io-client';
-//
-// const PrivateMessageForm = () => {
-//   const [recipient, setRecipient] = useState('');
-//   const [message, setMessage] = useState('');
-//   const [sender, setSender] = useState('');
-//   const [socket, setSocket] = useState(null);
-//
-//   useEffect(() => {
-//     const serverUrl = 'http://localhost:5000'; // Replace with your server URL and port
-//     const newSocket = io(serverUrl);
-//     setSocket(newSocket);
-//
-//     newSocket.on('connect', () => {
-//       newSocket.emit('connected', newSocket.id);
-//     });
-//
-//     newSocket.on('new_private_message', (msg) => {
-//       alert(msg);
-//     });
-//
-//     return () => {
-//       newSocket.disconnect();
-//     };
-//   }, []);
-//
-//   const handleSendPrivateMessage = () => {
-//     if (socket) {
-//       socket.emit('private_message', {'recipient': recipient, 'message': message, 'sender': sender});
-//       setRecipient('');
-//       setMessage('');
-//       setSender('');
-//     } else {
-//       console.error('Socket is not initialized');
-//     }
-//   };
-//
-//   return (
-//     <div>
-//       <input
-//         type="text"
-//         id="send_to_username"
-//         value={recipient}
-//         onChange={(e) => setRecipient(e.target.value)}
-//         placeholder="Recipient Username"
-//       />
-//       <input
-//         type="text"
-//         id="private_message"
-//         value={message}
-//         onChange={(e) => setMessage(e.target.value)}
-//         placeholder="Private Message"
-//       />
-//       <input
-//         type="text"
-//         id="send_from_username"
-//         value={sender}
-//         onChange={(e) => setSender(e.target.value)}
-//         placeholder="Sender Username"
-//       />
-//       <button onClick={handleSendPrivateMessage}>Send Private Message</button>
-//     </div>
-//   );
-// };
-//
-// export default PrivateMessageForm;
