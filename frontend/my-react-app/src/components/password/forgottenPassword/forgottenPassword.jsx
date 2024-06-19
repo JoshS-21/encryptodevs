@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import './forgottenPassword.css'; // Import your CSS file with correct path
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
@@ -20,7 +21,7 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div>
+    <div className="forgot-password-container"> {/* Apply the CSS class here */}
       <h2>Forgot Password</h2>
       <form onSubmit={handleForgotPassword}>
         <input

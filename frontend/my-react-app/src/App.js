@@ -22,9 +22,9 @@ import Login from './pages/login/login';
 import HomePage from './pages/homepage/homepage';
 import Landing from './pages/landing_page/landing';
 
-import ForgotPassword from './components/password/forgottenPassword';
+import ForgotPassword from './components/password/forgottenPassword/forgottenPassword.jsx';
 
-import ResetPassword from './components/password/resetPassword';
+import ResetPassword from './components/password/resetPassword/resetPassword.jsx';
 import PrivateMessageForm from "./components/privateMessageForm.jsx";
 
 
@@ -66,3 +66,4 @@ export default App;
 =======
 >>>>>>> main
 
+export default App
