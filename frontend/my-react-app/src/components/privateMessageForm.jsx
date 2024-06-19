@@ -1,20 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import io from 'socket.io-client';
 import logo from './Encryptodev_Logo.png';
+import { useSearchParams } from 'react-router-dom';
 
 
 const PrivateMessageForm = () => {
-  const [recipient, setRecipient] = useState('');
+  let [recipient, setRecipient] = useState('');
   const [message, setMessage] = useState('');
   const [sender, setSender] = useState('');
   const [socket, setSocket] = useState(null);
+  const [searchParams] = useSearchParams();
+
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
       console.error('No token found, redirecting to login.');
       window.location.href = '/login'; // Redirect to login if no token is found
-      return;
     }
 
     const serverUrl = 'http://localhost:5000'; // Replace with your server URL and port
@@ -39,6 +41,8 @@ const PrivateMessageForm = () => {
 
   const handleSendPrivateMessage = () => {
     if (socket) {
+      recipient = searchParams.get('user2')
+      console.log(recipient);
       socket.emit('private_message', { recipient, message, sender });
       setRecipient('');
       setMessage('');
@@ -51,13 +55,6 @@ const PrivateMessageForm = () => {
   return (
       <div>
         <img src={logo} alt="Encryptodevs_Logo" style={{width: '200px', height: 'auto'}}/>
-        <input
-            type="text"
-            id="send_to_username"
-            value={recipient}
-            onChange={(e) => setRecipient(e.target.value)}
-            placeholder="Recipient Username"
-        />
         <input
             type="text"
             id="private_message"

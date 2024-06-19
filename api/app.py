@@ -111,7 +111,7 @@ def login():
         user_obj.set_online(True)  # Set user online upon successful login
         collection.update_one({'_id': ObjectId(user['_id'])}, {'$set': {'is_online': True, 'last_seen': None}})
         access_token = create_access_token(identity=str(user['_id']))
-        users[username] = {'id': user['_id'], 'email': user['email'], 'phone_number': user['phone_number'],
+        logged_in_users[username] = {'id': user['_id'], 'email': user['email'], 'phone_number': user['phone_number'],
                            'session_id': None, 'access_token': access_token}
         return jsonify(
             {'message': 'User logged in successfully', 'user_id': str(user['_id']), 'token': access_token}), 200
@@ -127,7 +127,7 @@ def login():
 def logout():
     current_user_id = get_jwt_identity()
     username = user_collection.find_one({'_id': ObjectId(current_user_id)})['username']
-    users.pop(username, None)
+    logged_in_users.pop(username, None)
     db['users'].update_one(
         {'_id': ObjectId(current_user_id)},
         {'$set': {'is_online': False, 'last_seen': time.strftime('%Y-%m-%d %H:%M:%S')}}
@@ -168,7 +168,7 @@ def get_all_users():
 
 
 # ------- Private Messaging Handler -------- #
-users = {}
+logged_in_users = {}
 
 
 def socket_auth_required(f):
@@ -196,29 +196,60 @@ def handle_connected(data):
     user_id = request.user_id
     username = user_collection.find_one({'_id': ObjectId(user_id)})['username']
     socket_id = data['socket_id']
-    users[username]['session_id'] = str(socket_id)
-    print(users)
+    logged_in_users[username]['session_id'] = str(socket_id)
     emit('response', {'message': f'User {user_id} connected with socket ID: {socket_id}'})
 
+
+# @socketio.on('recipient_username')
+# @socket_auth_required
+# def retrieve_recipient_username(data):
+#     recipient_session_id
+#     return users[data]['session_id']
 
 @socketio.on('private_message')
 @socket_auth_required
 def private_message(payload):
-    print(payload)
-    print(users)
-    user_id = request.user_id
-    username = user_collection.find_one({'_id': ObjectId(user_id)})['username']
-    print(username)
-    recipient_session_id = users[payload['recipient']]['session_id']
-    recipient_id = user_collection.find_one({'username': payload['recipient']})['_id']
-    sender_session_id = users[username]['session_id']
-    message_content = payload['message']
-    message_timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
-    message_collection.insert_one(
-        {"content": message_content, "sender_id": ObjectId(user_id), "recipient_id": recipient_id,
-         "timestamp": message_timestamp})
-    emit('new_private_message', message_content, room=recipient_session_id)
-    emit('new_private_message', message_content, room=sender_session_id)
+    try:
+        print("Payload received:", payload)
+        print(logged_in_users)
+        user_id = request.user_id
+        username = user_collection.find_one({'_id': ObjectId(user_id)})['username']
+        recipient_id = user_collection.find_one({'username': payload['recipient']})['_id']
+        recipient_session_id = logged_in_users[payload['recipient']]['session_id']
+        sender_session_id = logged_in_users[username]['session_id']
+        print("?????????????????????????????????")
+        print(user_id)
+        print("?????????????????????????????????")
+        message_content = payload['message']
+        message_timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
+        message_collection.insert_one(
+            {"content": message_content, "sender_id": ObjectId(user_id), "recipient_id": recipient_id,
+            "timestamp": message_timestamp})
+        emit('new_private_message', message_content, room=recipient_session_id)
+        emit('new_private_message', message_content, room=sender_session_id)
+    except Exception as e:
+        print("An error occurred:", str(e))
+
+
+# @socketio.on('private_message')
+# @socket_auth_required
+# def private_message(payload):
+#     # print(payload)
+#     user_id = request.user_id
+#     username = user_collection.find_one({'_id': ObjectId(user_id)})['username']
+#     recipient_id = user_collection.find_one({'username': payload['recipient']})['_id']
+#     recipient_session_id = users[payload['recipient']['session_id']]
+#     sender_session_id = users[username]['session_id']
+#     print("?????????????????????????????????")
+#     print(user_id)
+#     print("?????????????????????????????????")
+#     message_content = payload['message']
+#     message_timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
+#     message_collection.insert_one(
+#         {"content": message_content, "sender_id": ObjectId(user_id), "recipient_id": recipient_id,
+#          "timestamp": message_timestamp})
+#     emit('new_private_message', message_content, room=recipient_session_id)
+#     emit('new_private_message', message_content, room=sender_session_id)
 
 
 if __name__ == '__main__':

@@ -5,12 +5,14 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'; //Styling packag
 import {faCircle} from '@fortawesome/free-solid-svg-icons'; //Styling for icon status
 import logo from './Encryptodev_Logo.png';
 import DropdownMenu from "../../components/dropdown";
+import initializeWebSocket from "../../components/WebSocket.js";
 
 
 const Landing = () => {
     const [userData, setUserData] = useState(null);
     const [users, setUsers] = useState([]);
     const navigate = useNavigate();
+
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -41,6 +43,16 @@ const Landing = () => {
         };
 
         fetchUserData();
+
+        // Initialize WebSocket connection
+        const socket = initializeWebSocket();
+
+        // Clean up the WebSocket connection when the component unmounts
+        return () => {
+            if (socket) {
+                socket.disconnect();
+            }
+        };
     }, [navigate]);
 
             console.log(users);
@@ -121,54 +133,9 @@ const Landing = () => {
             <br/>
             <br/>
             <br/>
-            <DropdownMenu userData={userData} users={users}/>
+            <DropdownMenu userData={userData} users={users} />
         </div>
     );
 };
 
 export default Landing;
-
-// return (
-//     <div>
-//         <h2>Welcome to the Landing Page</h2>
-//         <img src={logo} alt="Encryptodevs_Logo" style={{width: '200px', height: 'auto'}}/>
-//         {userData ? (
-//             <div>
-//                 <p>Logged in as: {userData.username}</p>
-//                 <p>
-//                     Status:
-//                     <FontAwesomeIcon
-//                         icon={faCircle}
-//                         style={{color: userData.is_online ? 'green' : 'red', marginLeft: '8px'}}
-//                     />
-//                     {userData.is_online ? 'Online' : `Offline (Last seen: ${formatLastSeen(userData.last_seen)})`}
-//                 </p>
-//                 <button onClick={handleLogout}>Logout</button>
-//             </div>
-//         ) : (
-//             <p>User data is not available</p>
-//     </div>
-//     )}
-//
-//     <DropdownMenu users={users}/>
-//     <h3>All Users:</h3>
-//     <ul>
-//         {users.map(user => (
-//             <li key={user.user_id}>
-//                 {user.username} -
-//                 <FontAwesomeIcon
-//                     icon={faCircle}
-//                     style={{color: user.is_online ? 'green' : 'red', marginLeft: '8px'}}
-//                 />
-//                 {user.is_online ? 'Online' : `Offline (Last seen: ${formatLastSeen(user.last_seen)})`}
-//             </li>
-//         ))}
-//     </ul>
-//     <a href="/test">Messages</a>
-// );
-//
-//     );
-//
-//
-//
-//     export default Landing;
