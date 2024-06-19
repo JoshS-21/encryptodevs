@@ -51,10 +51,18 @@ const Login = () => {
     }
   };
 
-  const handleLoginSuccess = (credentialResponse) => {
+  const handleLoginSuccess =  async (credentialResponse)  => {
     const { profileObj, tokenId } = credentialResponse;
+    const GoogleStatusResponse = await fetch(`${process.env.REACT_APP_API_URL}/verify-google-token`,{
+            method: 'POST',
+            headers: {
+            Authorization: `Bearer ${credentialResponse.credential}`,
+          }
+        });
+    console.log(GoogleStatusResponse)
     setProfile(profileObj);
-    localStorage.setItem('token', tokenId);
+    localStorage.setItem('token', credentialResponse.credential);
+    console.log(tokenId)
     navigate('/landing');
   };
 

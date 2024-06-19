@@ -22,14 +22,13 @@ const Landing = () => {
         const userStatusResponse = await fetch(`${process.env.REACT_APP_API_URL}/user-status`, {
           headers: {
             Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
           }
         });
 
         if (!userStatusResponse.ok) {
-          console.log("Line 30: landing.jsx")
-            console.error("Failed to fetch user status")
-          // throw new Error('Failed to fetch user status');
+          console.error("Failed to fetch user status");
+          navigate('/login');
+          return;
         }
 
         const userData = await userStatusResponse.json();
@@ -44,8 +43,9 @@ const Landing = () => {
         });
 
         if (!usersResponse.ok) {
-            console.error("Failed to fetch user data")
-          // throw new Error('Failed to fetch users data');
+          console.error("Failed to fetch users data");
+          navigate('/login');
+          return;
         }
 
         const usersData = await usersResponse.json();

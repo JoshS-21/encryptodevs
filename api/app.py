@@ -39,8 +39,7 @@ CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
 # Enable CORS for all routes
 CORS(app)
 
-
-@app.route('/verify-google-token', methods=['POST'])
+app.route('/verify-google-token', methods=['POST'])
 def verify_google_token():
     token = request.json.get('token')
     print(f"line44: {token}")
@@ -78,13 +77,13 @@ def verify_google_token():
         new_user = {
             'google_id': google_id,
             'email': email,
-            'phone_number': None,
             'name': name,
-            'username': None,
+            'username': email,  # Set email as default username
             'is_online': True,  # Set user online upon creation
             'last_seen': None
         }
         result = collection.insert_one(new_user)
+        print(f"line 80: New user inserted: {result.inserted_id}")
 
         # Generate access token for the newly created user
         access_token = create_access_token(identity=str(result.inserted_id))
@@ -217,16 +216,23 @@ def logout():
 @app.route('/user-status', methods=['GET'])
 @jwt_required()
 def user_status():
-    current_user_id = get_jwt_identity()
-    user = db['users'].find_one({'_id': ObjectId(current_user_id)})
-    if user:
-        return jsonify({
-            'username': user['username'],
-            'is_online': user.get('is_online', False),
-            'last_seen': user.get('last_seen', 'N/A')
-        }), 200
-    else:
-        return jsonify({'message': 'User not found'}), 404
+    try:
+        current_user_id = get_jwt_identity()
+        print(f"Current user ID: {current_user_id}")
+        user = db['users'].find_one({'_id': ObjectId(current_user_id)})
+        if user:
+            print(f"User found: {user}")
+            return jsonify({
+                'username': user.get('username', user.get('email')),
+                'is_online': user.get('is_online', False),
+                'last_seen': user.get('last_seen', 'N/A')
+            }), 200
+        else:
+            print("User not found")
+            return jsonify({'message': 'User not found'}), 404
+    except Exception as e:
+        print(f"Error in user_status endpoint: {e}")
+        return jsonify({'message': 'An error occurred'}), 500
 
 
 @app.route('/users', methods=['GET'])
