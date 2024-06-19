@@ -1,91 +1,160 @@
-.signup-container {
-    max-width: 350px; /* Increased max-width to make the box a bit bigger */
-    margin: 50px auto; /* Center horizontally and add top margin to place it lower */
-    padding: 20px; /* Slightly increased padding */
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: #f9f9f9;
-    display: flex; /* Use flexbox */
-    flex-direction: column; /* Stack children vertically */
+/* Global page container */
+.page-container {
+    position: relative; /* Ensure relative positioning for children */
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: flex-start; /* Align items to the top */
+    height: 100vh; /* Full viewport height */
+    padding: 20px;
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+    background-color: #ffffff; /* Optional: Set background color */
+  }
+  
+  /* Top left container styles */
+  .top-left {
+    position: absolute;
+    top: 20px; /* Adjust top spacing */
+    left: 20px; /* Adjust left spacing */
+  }
+  
+  .top-left .logo-container {
+    margin-bottom: 20px; /* Adjust margin below logo */
+  }
+  
+  .top-left .logo-container img {
+    width: 150px; /* Adjust logo size */
+    height: auto;
+  }
+  
+  /* Top right container styles */
+  .top-right {
+    position: absolute;
+    top: 20px; /* Adjust top spacing */
+    right: 20px; /* Adjust right spacing */
+  }
+  
+  .top-right p {
+    margin: 0;
+    font-size: 14px;
+    color: #333;
+  }
+  
+  .top-right a {
+    color: #007bff; /* Bootstrap blue color for links */
+    text-decoration: none;
+  }
+  
+  .top-right a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Signup container styles */
+  .signup-container {
+    max-width: 350px; /* Adjust maximum width as needed */
+    margin-top: 60px; /* Adjust top margin to ensure it clears the top text */
+    padding: 20px;
+    background-color: #ffffff; /* Optional: Set background color */
+    display: flex;
+    flex-direction: column;
     align-items: center; /* Center items horizontally */
-    justify-content: flex-start; /* Align items to the start vertically */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add subtle shadow for better look */
-    overflow: hidden; /* Prevent content overflow */
-}
-
-.form-group {
-    width: 100%; /* Full width of container */
-    margin-bottom: 10px; /* Space between input fields */
-}
-
-input[type='text'],
-input[type='email'],
-input[type='password'] {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+  }
+  
+  .signup-container h2 {
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: #333;
+    text-align: center; /* Center heading */
+  }
+  
+  .signup-container p {
+    margin-bottom: 10px;
+    font-size: 16px;
+    color: #333;
+    text-align: center; /* Center paragraph text */
+  }
+  
+  .signup-form {
+    width: 100%; /* Full width for form */
+  }
+  
+  /* Form group and input styles */
+  .form-group {
     width: 100%;
-    padding: 10px; /* Comfortable padding */
-    margin-bottom: 5px;
-    font-size: 16px; /* Comfortable font size */
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box; /* Ensure padding is included in the element's width */
-}
-
-button {
-    width: 100%;
+    margin-bottom: 10px;
+  }
+  
+  .form-group input[type='text'],
+  .form-group input[type='email'],
+  .form-group input[type='password'],
+  .form-group input[type='tel'] {
+    width: 100%; /* Ensure all inputs within .form-group are full width */
     padding: 10px;
     font-size: 16px;
-    background-color: #4caf50;
-    color: white;
-    border: none;
+    border: 1px solid #ccc;
     border-radius: 4px;
+    box-sizing: border-box; /* Ensure padding and border are included in the total width */
+  }
+  
+  /* Password input specific styles */
+  .password-input {
+    position: relative; /* Ensure relative positioning for password input */
+    width: 100%;
+  }
+  
+  .password-input input[type='password'] {
+    width: calc(100% - 80px); /* Adjust input width to leave space for toggle button */
+  }
+  
+  .toggle-password {
+    position: absolute;
+    right: 10px; /* Adjust right position to align with input */
+    top: 50%; /* Align vertically */
+    transform: translateY(-50%); /* Center vertically */
+    font-size: 14px;
+    color: #007bff; /* Blue color for the text */
     cursor: pointer;
-    transition: background-color 0.3s ease; /* Smooth transition for hover effect */
-}
-
-button:hover {
-    background-color: #45a049;
-}
-
-.error-message {
+    background: none;
+    border: none;
+  }
+  
+  .toggle-password:hover {
+    text-decoration: underline;
+  }
+  
+  .error-message {
     color: red;
-    font-size: 12px; /* Reduced font size */
+    font-size: 12px;
     margin-top: 5px;
-    text-align: left; /* Align error messages to the left */
-    width: 100%; /* Full width for better readability */
-}
-
-/* Password criteria styling */
-.password-criteria {
+    text-align: left;
+    width: 100%;
+  }
+  
+  .password-criteria {
     list-style: none;
     padding: 0;
-    margin: 10px 0 0 0; /* Add some space above the criteria */
-    width: 100%; /* Full width of the container */
-}
-
-.password-criteria li {
+    margin-top: 5px; /* Adjust margin top for spacing */
+  }
+  
+  .password-criteria li {
     margin: 5px 0;
-    font-size: 14px; /* Comfortable font size */
+    font-size: 14px;
     display: flex;
     align-items: center;
-}
-
-.password-criteria li.met {
+  }
+  
+  .password-criteria li.met {
     color: green;
-}
-
-.password-criteria li.unmet {
+  }
+  
+  .password-criteria li.unmet {
     color: red;
-}
-
-.checkmark {
+  }
+  
+  .checkmark {
     margin-right: 10px;
     color: green;
     font-weight: bold;
-}
-
-/* Additional styling for the heading */
-.signup-container h2 {
-    margin-bottom: 20px; /* Add some space below the heading */
-    font-size: 24px; /* Comfortable font size */
-    color: #333;
-}
+  }
+  
