@@ -45,6 +45,7 @@ user_collection = db['users']
 # Enable CORS for all routes
 CORS(app)
 
+
 def validate_password(password):
     """Validate password against specified criteria."""
     requirements = []
@@ -55,7 +56,6 @@ def validate_password(password):
     if not any(char in '!@£_%-' for char in password):
         requirements.append('Password must include at least one of !@£_%-')
     return len(requirements) == 0, ', '.join(requirements)
-
 
 
 # Sign-up route
@@ -125,9 +125,10 @@ def login():
         access_token = create_access_token(identity=str(user['_id']))
 
         # Store user information in some session management (you might adjust this as per your app's architecture)
-        users[username] = {'id': user['_id'], 'email': user['email'], 'phone_number': user['phone_number'],
-                           'session_id': None, 'access_token': access_token}
-        return jsonify({'message': 'User logged in successfully', 'user_id': str(user['_id']), 'token': access_token}), 200
+        logged_in_users[username] = {'id': user['_id'], 'email': user['email'], 'phone_number': user['phone_number'],
+                                     'session_id': None, 'access_token': access_token}
+        return jsonify(
+            {'message': 'User logged in successfully', 'user_id': str(user['_id']), 'token': access_token}), 200
 
     elif user is None:
         # Username not found
@@ -182,6 +183,7 @@ def get_all_users():
         })
     return jsonify(user_list), 200
 
+
 @app.route('/forgot_password', methods=['POST'])
 def forgot_password():
     data = request.json
@@ -206,6 +208,7 @@ def forgot_password():
     send_reset_email(email, reset_token, user['name'])
 
     return jsonify({'message': 'Password reset email sent'}), 200
+
 
 @app.route('/reset_password', methods=['POST'])
 def reset_password():
@@ -235,6 +238,7 @@ def reset_password():
     )
 
     return jsonify({'message': 'Password reset successful'}), 200
+
 
 # Function to send password reset email using Mailjet
 def send_reset_email(to_email, token, user_name):
@@ -270,6 +274,7 @@ def send_reset_email(to_email, token, user_name):
     else:
         print(f'Failed to send password reset email: {response.status_code}')
         print(response.text)
+
 
 # ------- Private Messaging Handler -------- #
 logged_in_users = {}
