@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; //Styling package
-import { faCircle } from '@fortawesome/free-solid-svg-icons'; //Styling for icon status
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCircle } from '@fortawesome/free-solid-svg-icons';
 import logo from './Encryptodev_Logo.png';
-
 
 const Landing = () => {
   const [userData, setUserData] = useState(null);
@@ -19,21 +17,41 @@ const Landing = () => {
         return;
       }
 
-      const headers = { headers: { Authorization: `Bearer ${token}` } };
-      const userResponse = await axios.get(`${process.env.REACT_APP_API_URL}/user-status`, headers);
-      const usersResponse = await axios.get(`${process.env.REACT_APP_API_URL}/users`, headers);
+      try {
+        // Fetch user status
+        const userStatusResponse = await fetch(`${process.env.REACT_APP_API_URL}/user-status`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
 
-      if (userResponse.status === 200) {
-        setUserData(userResponse.data);
-      } else {
-        console.error('Failed to fetch user data');
-        navigate('/login');
-      }
+        if (!userStatusResponse.ok) {
+          console.log("Line 30: landing.jsx")
+            console.error("Failed to fetch user status")
+          // throw new Error('Failed to fetch user status');
+        }
 
-      if (usersResponse.status === 200) {
-        setUsers(usersResponse.data);
-      } else {
-        console.error('Failed to fetch users data');
+        const userData = await userStatusResponse.json();
+        setUserData(userData);
+
+        // Fetch all users
+        const usersResponse = await fetch(`${process.env.REACT_APP_API_URL}/users`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!usersResponse.ok) {
+            console.error("Failed to fetch user data")
+          // throw new Error('Failed to fetch users data');
+        }
+
+        const usersData = await usersResponse.json();
+        setUsers(usersData);
+      } catch (error) {
+        console.error('Error fetching data:', error);
         navigate('/login');
       }
     };
@@ -45,21 +63,30 @@ const Landing = () => {
     const token = localStorage.getItem('token');
     if (!token) return;
 
-    const headers = { headers: { Authorization: `Bearer ${token}` } };
-    const logoutResponse = await axios.post(`${process.env.REACT_APP_API_URL}/logout`, {}, headers);
+    try {
+      const logoutResponse = await fetch(`${process.env.REACT_APP_API_URL}/logout`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
 
-    if (logoutResponse.status === 200) {
-      localStorage.removeItem('token');
-      setUserData(null);
-      setUsers(users.map(user => ({
-        ...user,
-        is_online: user.user_id === userData?.user_id ? false : user.is_online,
-        last_seen: user.user_id === userData?.user_id ? new Date().toISOString() : user.last_seen,
-      })));
+      if (logoutResponse.ok) {
+        localStorage.removeItem('token');
+        setUserData(null);
+        setUsers(users.map(user => ({
+          ...user,
+          is_online: user.user_id === userData?.user_id ? false : user.is_online,
+          last_seen: user.user_id === userData?.user_id ? new Date().toISOString() : user.last_seen,
+        })));
 
-      navigate('/');
-    } else {
-      console.error('Logout failed');
+        navigate('/');
+      } else {
+        console.error('Logout failed');
+      }
+    } catch (error) {
+      console.error('Logout failed:', error);
     }
   };
 
@@ -77,40 +104,40 @@ const Landing = () => {
   };
 
   return (
-      <div>
-        <h2>Welcome to the Landing Page</h2>
-        <img src={logo} alt="Encryptodevs_Logo" style={{width: '200px', height: 'auto'}}/>
-        {userData ? (
-            <div>
-              <p>Logged in as: {userData.username}</p>
-              <p>
-                Status:
-                <FontAwesomeIcon
-                    icon={faCircle}
-                    style={{color: userData.is_online ? 'green' : 'red', marginLeft: '8px'}}
-                />
-                {userData.is_online ? 'Online' : `Offline (Last seen: ${formatLastSeen(userData.last_seen)})`}
-              </p>
-              <button onClick={handleLogout}>Logout</button>
-            </div>
-        ) : (
-            <p>User data is not available</p>
-        )}
-        <h3>All Users:</h3>
-        <ul>
-          {users.map(user => (
-              <li key={user.user_id}>
-                {user.username} -
-                <FontAwesomeIcon
-                    icon={faCircle}
-                    style={{color: user.is_online ? 'green' : 'red', marginLeft: '8px'}}
-                />
-                {user.is_online ? 'Online' : `Offline (Last seen: ${formatLastSeen(user.last_seen)})`}
-              </li>
-          ))}
-        </ul>
-         <a href="/test">Messages</a>
-      </div>
+    <div>
+      <h2>Welcome to the Landing Page</h2>
+      <img src={logo} alt="Encryptodevs_Logo" style={{ width: '200px', height: 'auto' }} />
+      {userData ? (
+        <div>
+          <p>Logged in as: {userData.username}</p>
+          <p>
+            Status:
+            <FontAwesomeIcon
+              icon={faCircle}
+              style={{ color: userData.is_online ? 'green' : 'red', marginLeft: '8px' }}
+            />
+            {userData.is_online ? 'Online' : `Offline (Last seen: ${formatLastSeen(userData.last_seen)})`}
+          </p>
+          <button onClick={handleLogout}>Logout</button>
+        </div>
+      ) : (
+        <p>User data is not available</p>
+      )}
+      <h3>All Users:</h3>
+      <ul>
+        {users.map(user => (
+          <li key={user.user_id}>
+            {user.username} -
+            <FontAwesomeIcon
+              icon={faCircle}
+              style={{ color: user.is_online ? 'green' : 'red', marginLeft: '8px' }}
+            />
+            {user.is_online ? 'Online' : `Offline (Last seen: ${formatLastSeen(user.last_seen)})`}
+          </li>
+        ))}
+      </ul>
+      <a href="/test">Messages</a>
+    </div>
   );
 };
 

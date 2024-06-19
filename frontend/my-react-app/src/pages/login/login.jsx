@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import axios from 'axios';
-import logo from './Encryptodev_Logo.png';
-import GoogleLogin from 'react-google-login';
+import { Link, useNavigate } from 'react-router-dom';
+import { GoogleLogin } from '@react-oauth/google';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -9,6 +8,8 @@ const Login = () => {
     password: ''
   });
   const [errorMessage, setErrorMessage] = useState('');
+  const [profile, setProfile] = useState(null);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({
@@ -17,44 +18,54 @@ const Login = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    axios.post(`${process.env.REACT_APP_API_URL}/login`, formData)
-      .then(response => {
-        alert(response.data.message);
-        localStorage.setItem('token', response.data.token);
-        window.location.href = '/landing';
-      })
-      .catch(error => {
-        if (error.response && error.response.status === 401) {
+
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        if (response.status === 401) {
           setErrorMessage('Username not found. Please sign up to create an account.');
         } else {
-          console.error('Error logging in:', error);
+          console.error('Error logging in:', errorData);
           setErrorMessage('Login failed. Please try again.');
         }
-      });
+        return;
+      }
+
+      const data = await response.json();
+      alert(data.message);
+      localStorage.setItem('token', data.token);
+      navigate('/landing');
+    } catch (error) {
+      console.error('Error logging in:', error);
+      setErrorMessage('Login failed. Please try again.');
+    }
   };
 
-  const responseGoogle = (response) => {
-    axios.post(`${process.env.REACT_APP_API_URL}/verify-google-token`, { token: response.tokenId })
-      .then(response => {
-        if (response.status === 200) {
-          localStorage.setItem('token', response.data.token);
-          window.location.href = '/landing';
-        } else {
-          setErrorMessage('Google Sign-In failed. Please try again.');
-        }
-      })
-      .catch(error => {
-        console.error('Error verifying Google token:', error);
-        setErrorMessage('Google Sign-In failed. Please try again.');
-      });
+  const handleLoginSuccess = (credentialResponse) => {
+    const { profileObj, tokenId } = credentialResponse;
+    setProfile(profileObj);
+    localStorage.setItem('token', tokenId);
+    navigate('/landing');
+  };
+
+  const handleLoginFailure = (error) => {
+    console.log('Google Login Failed:', error);
+    setErrorMessage('Google Sign-In failed. Please try again.');
   };
 
   return (
     <div>
       <h2>Login</h2>
-      <img src={logo} alt="Encryptodev_Logo" style={{ width: '200px', height: 'auto' }} />
       <form onSubmit={handleSubmit}>
         <input
           type="text"
@@ -78,16 +89,22 @@ const Login = () => {
         <br />
         <button type="submit">Login</button>
       </form>
+      <br />
+      <Link to="/forgot_password">Forgot Password?</Link>
+      <br />
+      <h3>Or Login with Google:</h3>
+      {profile ? (
+        <div>
+          <p>User ID: {profile.googleId}</p>
+          <p>Email: {profile.email}</p>
+        </div>
+      ) : (
+        <GoogleLogin
+          onSuccess={handleLoginSuccess}
+          onFailure={handleLoginFailure}
+        />
+      )}
       {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
-      <GoogleLogin
-        clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}
-        buttonText="Login with Google"
-        onSuccess={responseGoogle}
-        onFailure={responseGoogle}
-        cookiePolicy={'single_host_origin'}
-      />
-      <p>Haven't got an account? <a href="/signup">Sign up</a></p>
-      <p>Return to <a href="/">homepage</a></p>
     </div>
   );
 };
