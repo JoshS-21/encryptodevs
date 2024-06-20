@@ -49,8 +49,74 @@ to start the backend server.
 You can now test the app running on your local server. You can use Compass to view items (users and messages) in the
 MongoDB database.
 </p>
+<br>
+<br>
 
 ***
+### Initial MVP
+
+Our aim as a group was to create a secure message app, modelled loosely on WhatsApp or Signal.
+
+#### Functionality:
+> - Send secure text-based messages
+> - Users will be able to sign up and sign in
+> - Find and add friends/contacts
+> - Messaging notification (In-App).
+
+- #### Databases: Users, Messages, Notification (TBC) 
+- #### DB Server: MongoDB
+
+#### Non MVP ‘Nice-to-Haves’:
+> - Call functionality
+> - Group chat functionality
+> - Sending audio/image messages
+> - Video calling
+> - Click profile picture in chat to view contact card
+
+<br>
+
+
+
+### App UI Plan
+![App Workflow](<Screenshot 2024-06-20 at 14.45.49.png>)
+<br>
+<br>
+***
+
+
+
+### WebSocket vs HTTP
+
+In the interest of time, we decided that using WebSockets would be preferable to normal HTTP requests for this project. 
+They enable real-time, bi-directional communication between the client and server- 
+#### i.e. They keep a connection open as people are sending messages back and forth, without reloading or sending new requests everytime someone presses 'send'.
+Although there are likely other better or more advanced technologies than WebSockets that would be used in industry, this functionality of keeping an open connection is cruicial for instant messaging.
+
+<br>
+
+![WebSocket Flow Diagram](<Screenshot 2024-06-20 at 16.10.11.png>)
+
+#### Key advantages:
+> - Real-Time Communication: WebSockets allow for instantaneous data transfer, making messages appear in real-time. <br>
+> - Bidirectional: WebSockets support two-way communication, enabling both the client and server to send and receive messages at any time.
+> - Efficient: WebSockets maintain a single open connection, instead of relying on multiple HTTP connections.
+> - Low Latency: WebSockets allows faster data transfer compared to the request-response model of HTTP, ensuring faster message delivery.
+> - Scalability: WebSockets can handle a large number of simultaneous connections, making them suitable for applications with many users interacting in real-time.
+
+***
+<br>
+
+
+
+### Encryption Flow Plan
+
+Although we had to abandon the actual implementation of the message encryption due to time constraints, the image below shows the planned flow of how this might have looked.
+
+![WorkFlow Mermaid](<secure_messaging_app_sequence_diagram-2024-06-20-144854_720.png>)
+<br>
+<br>
+***
+
 
 ### Current Features
 Our web app has the following features currently implemented:
@@ -78,6 +144,19 @@ Our web app has the following features currently implemented:
   > - 'Received message' alert for recipients not in the chat screen
 
 ***
+<br>
+
+
+
+### Tech Stack
+
+> - BackEnd - Python (Flask)
+> - FrontEnd - JavaScript (React) 
+> - Database - MongoDB (with Compass for UI)
+
+***
+<br>
+
 
 ### Future Features
 Due to the strict time limitations associated with the project, we tried to ensure we kept our MVP to a very basic set
@@ -107,3 +186,15 @@ possibilities, such as detailed above. <br>
       Redis/Redis Stream (on the back end)
 
 - #### Local device 'contacts' access/integration
+***
+<br>
+
+### Tools and Workflow Collaboration
+
+> -  Github 'Projects' was used as the communal organiser to keep track of tasks and workflow during the project
+> - Morning Stand-ups as a group to briefly discuss work for the day before splitting ito smaller groups
+> - After Lunch meetings were held on an ad-hoc basis to discuss any progress or blockers
+> - Daily Retros from 4 as a group to complete any merging of code, and resolve any conflicts between versions before finally pushing all completed changes to the main branch
+
+
+
