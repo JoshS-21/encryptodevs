@@ -7,6 +7,7 @@ from faker import Faker
 
 fake = Faker()
 
+
 @pytest.fixture(scope="module")
 def setup():
     driver = webdriver.Chrome()
@@ -35,11 +36,11 @@ def test_successful_signup(setup):
     title = setup.find_element(By.ID, "title")
     assert title.text == "Login"
 
+
 def test_successful_login(setup):
     setup.get("http://localhost:3000/login")
-
-    setup.find_element(By.ID, "username").send_keys("josh10")
-    setup.find_element(By.ID, "password").send_keys("Password123!!")
+    setup.find_element(By.ID, "username").send_keys("abdio")
+    setup.find_element(By.ID, "password").send_keys("hashed_password")
     setup.find_element(By.ID, "submit").click()
     time.sleep(4)
     alert = setup.switch_to.alert
@@ -49,4 +50,4 @@ def test_successful_login(setup):
     alert.accept()
     time.sleep(2)
     title = setup.find_element(By.ID, "current_user")
-    assert title.text == "Logged in as: josh10"
+    assert title.text == "Logged in as: abdio"
