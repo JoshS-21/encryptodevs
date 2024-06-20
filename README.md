@@ -91,7 +91,7 @@ Our aim as a group was to create a secure message app, modelled loosely on Whats
 
 
 ### User Interface and API design
-![App Workflow](Screenshot_2024_06_20_14_45_49.png)
+![App Workflow](frontend/my-react-app/Screenshot_2024_06_20_14_45_49.png)
 <br>
 <br>
 
@@ -110,7 +110,7 @@ extensions 'on top'.
 
 <br>
 
-![WebSocket Flow Diagram](Screenshot_3.png)
+![WebSocket Flow Diagram](frontend/my-react-app/Screenshot_3.png)
 
 #### Key advantages:
 > - Real-time communication: WebSockets allow for instantaneous data transfer, making messages appear in real-time
@@ -127,8 +127,8 @@ extensions 'on top'.
 ### Tools and Agile Methodologies
 
 > - GitHub 'Projects' was used as the communal organiser (Kanban) to keep track of tasks and workflow during the project
-![GitHub Projects screenshots](Screenshot_1.png)
-![GitHub Projects screenshots](Screenshot_2.png)
+![GitHub Projects screenshots](frontend/my-react-app/Screenshot_1.png)
+![GitHub Projects screenshots](frontend/my-react-app/Screenshot_2.png)
 <br>
 > - Morning stand-ups as a group to briefly discuss work for the day before splitting into smaller groups
 > - After-lunch meetings on an ad-hoc basis to discuss any progress or blockers
@@ -140,7 +140,7 @@ extensions 'on top'.
 Although we had to abandon implementation of end-to-end encryption due to time constraints, the sequence
 diagram includes this functionality.
 
-![Sequence Diagram](sequence_diagram_3.png)
+![Sequence Diagram](frontend/my-react-app/sequence_diagram_3.png)
 
 ***
 
