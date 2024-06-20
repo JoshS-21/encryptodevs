@@ -135,6 +135,14 @@ extensions 'on top'.
 > - Daily retros from 4pm as a group, including code review, to merge pull requests and resolve any conflicts between 
     versions, before pushing all completed changes to the main branch
 
+### Tech Stack
+
+> - BackEnd - Python (Flask)
+> - FrontEnd - JavaScript (React) 
+> - Database - MongoDB (with Compass for UI)
+
+***
+
 ### Sequence Diagram
 
 Although we had to abandon implementation of end-to-end encryption due to time constraints, the sequence
@@ -168,14 +176,6 @@ Our web app has the following features currently implemented:
   > - User-user private chat page with message logging on-screen
   > - Message storage to the database (unencrypted)
   > - 'Received message' alert for recipients not in the chat screen
-
-***
-
-### Tech Stack
-
-> - BackEnd - Python (Flask)
-> - FrontEnd - JavaScript (React) 
-> - Database - MongoDB (with Compass for UI)
 
 ***
 
