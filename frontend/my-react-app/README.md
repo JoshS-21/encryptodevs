@@ -2,7 +2,17 @@
 
 ## Private Messaging Web App
 
-### Getting Started
+### Contents
+1. [Setup](#setup)
+2. [MVP](#minimum-viable-product)
+3. [UI](#ui)
+4. [WebSocket vs HTTP](#websocket-vs-http)
+5. [Sequence Diagram](#sequence-diagram)
+6. [Current Features](#current-features)
+7. [Tech Stack](#future-features)
+8. [Tools and Workflow Collaboration](#tools-and-workflow-collaboration)
+
+### Setup
 
 
 1. Clone the GitHub repository from <a href="https://github.com/JoshS-21/encryptodevs.git"> here</a>.
@@ -57,7 +67,7 @@ MongoDB database.
 
 ***
 
-### Initial MVP
+### Minimum Viable Product
 
 Our aim as a group was to create a secure message app, modelled loosely on WhatsApp or Signal.
 
@@ -78,7 +88,7 @@ Our aim as a group was to create a secure message app, modelled loosely on Whats
 > - Click profile picture in chat to view contact card <br>
 
 
-### App UI Plan
+### UI
 ![App Workflow](Screenshot_2024_06_20_14_45_49.png)
 <br>
 <br>
