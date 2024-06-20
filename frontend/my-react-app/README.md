@@ -7,13 +7,16 @@
 
 1. Clone the GitHub repository from <a href="https://github.com/JoshS-21/encryptodevs.git"> here</a>.
 
-2. Ensure you have <a href="https://www.python.org">Python</a> and <a href="https://nodejs.org/en">Node.js</a> installed on your machine.
+2. Ensure you have <a href="https://www.python.org">Python</a> and <a href="https://nodejs.org/en">Node.js</a> installed
+   on your machine.
 
-3. Ensure you have <a href="https://www.mongodb.com/docs/manual/administration/install-community/DB">MongoDB</a> and <a href="https://www.mongodb.com/docs/compass/current/install/">Compass</a> installed on your machine. 
+3. Ensure you have <a href="https://www.mongodb.com/docs/manual/administration/install-community/DB">MongoDB</a> and <a 
+   href="https://www.mongodb.com/docs/compass/current/install/">Compass</a> installed on your machine. 
 
 4. Open the project in your preferred IDE.
 
-5. Open a terminal and navigate to the 'api' directory and create a new file called .env (with no file extension). Add the following contents to the file, then save:
+5. Open a terminal and navigate to the 'api' directory and create a new file called .env (with no file extension). Add 
+   the following contents to the file, then save:
 
     `***CHECK WHAT CODE NEEDS TO GO HERE***` <br>
 (Include the quotation marks.)
@@ -27,7 +30,8 @@ to install the dependencies for the Flask backend app.
 7. While still in the 'api' directory, run
 
     `python3 mongodb_initialization.py` <br>
-to initialise the database. Use Compass to verify the creation of the 'encryptodevs' database and a 'users' collection containing one test user called 'abdio'.
+to initialise the database. Use Compass to verify the creation of the 'encryptodevs' database and a 'users' collection 
+containing one test user called 'abdio'.
 
 8. 'cd' into the 'frontend/my-react-app' directory. Run
 
@@ -37,7 +41,8 @@ to install the dependencies for the React frontend app.
 9. Whilst still in the 'frontend/my-react-app' directory, run
 
     `npm start` <br>
-and click <a href="http://localhost:3000">http://localhost:3000</a> to launch the browser. The page will reload when you make changes.
+and click <a href="http://localhost:3000">http://localhost:3000</a> to launch the browser. The page will reload when you
+make changes.
 You may also see any lint errors in the console.
 
 10. Open a new terminal leaving the first open and cd to the 'api' directory. Run
@@ -49,10 +54,9 @@ to start the backend server.
 You can now test the app running on your local server. You can use Compass to view items (users and messages) in the
 MongoDB database.
 </p>
-<br>
-<br>
 
 ***
+
 ### Initial MVP
 
 Our aim as a group was to create a secure message app, modelled loosely on WhatsApp or Signal.
@@ -61,62 +65,59 @@ Our aim as a group was to create a secure message app, modelled loosely on Whats
 > - Send secure text-based messages
 > - Users will be able to sign up and sign in
 > - Find and add friends/contacts
-> - Messaging notification (In-App).
+> - Messaging notification (in-app)
 
-- #### Databases: Users, Messages, Notification (TBC) 
-- #### DB Server: MongoDB
+#### Database collections: Users, Messages
+#### DB Server: MongoDB
 
 #### Non MVP ‘Nice-to-Haves’:
 > - Call functionality
 > - Group chat functionality
 > - Sending audio/image messages
 > - Video calling
-> - Click profile picture in chat to view contact card
-
-<br>
-
+> - Click profile picture in chat to view contact card <br>
 
 
 ### App UI Plan
-![App Workflow](<Screenshot 2024-06-20 at 14.45.49.png>)
+![App Workflow](Screenshot_2024_06_20_14_45_49.png)
 <br>
 <br>
+
 ***
-
-
 
 ### WebSocket vs HTTP
 
 In the interest of time, we decided that using WebSockets would be preferable to normal HTTP requests for this project. 
-They enable real-time, bi-directional communication between the client and server- 
-#### i.e. They keep a connection open as people are sending messages back and forth, without reloading or sending new requests everytime someone presses 'send'.
-Although there are likely other better or more advanced technologies than WebSockets that would be used in industry, this functionality of keeping an open connection is cruicial for instant messaging.
+They enable real-time, bidirectional communication between the client and server- 
+**i.e. They keep a connection open as people are sending messages back and forth, without reloading or sending new 
+requests everytime someone presses 'send'.**
+Although there are likely other better or more advanced technologies than WebSockets that would be used in industry, 
+this functionality of keeping an open connection is crucial for instant messaging.
 
 <br>
 
-![WebSocket Flow Diagram](<Screenshot 2024-06-20 at 16.10.11.png>)
+![WebSocket Flow Diagram](Screenshot_2024_06_20_14_45_49.png)
 
 #### Key advantages:
-> - Real-Time Communication: WebSockets allow for instantaneous data transfer, making messages appear in real-time. <br>
-> - Bidirectional: WebSockets support two-way communication, enabling both the client and server to send and receive messages at any time.
-> - Efficient: WebSockets maintain a single open connection, instead of relying on multiple HTTP connections.
-> - Low Latency: WebSockets allows faster data transfer compared to the request-response model of HTTP, ensuring faster message delivery.
-> - Scalability: WebSockets can handle a large number of simultaneous connections, making them suitable for applications with many users interacting in real-time.
+> - Real-Time Communication: WebSockets allow for instantaneous data transfer, making messages appear in real-time
+> - Bidirectional: WebSockets support two-way communication, enabling both the client and server to send and receive 
+    messages at any time
+> - Efficient: WebSockets maintain a single open connection, instead of relying on multiple HTTP connections
+> - Low Latency: WebSockets allows faster data transfer compared to the request-response model of HTTP, ensuring faster 
+    message delivery
+> - Scalability: WebSockets can handle a large number of simultaneous connections, making them suitable for applications
+    with many users interacting in real-time
 
 ***
-<br>
 
+### Sequence Diagram
 
+Although we had to abandon implementation of end-to-end encryption due to time constraints, the sequence
+diagram includes this functionality.
 
-### Encryption Flow Plan
+![WorkFlow Mermaid](secure_messaging_app_sequence_diagram-2024-06-20-144854_720.png)
 
-Although we had to abandon the actual implementation of the message encryption due to time constraints, the image below shows the planned flow of how this might have looked.
-
-![WorkFlow Mermaid](<secure_messaging_app_sequence_diagram-2024-06-20-144854_720.png>)
-<br>
-<br>
 ***
-
 
 ### Current Features
 Our web app has the following features currently implemented:
@@ -144,9 +145,6 @@ Our web app has the following features currently implemented:
   > - 'Received message' alert for recipients not in the chat screen
 
 ***
-<br>
-
-
 
 ### Tech Stack
 
@@ -155,8 +153,6 @@ Our web app has the following features currently implemented:
 > - Database - MongoDB (with Compass for UI)
 
 ***
-<br>
-
 
 ### Future Features
 Due to the strict time limitations associated with the project, we tried to ensure we kept our MVP to a very basic set
@@ -186,15 +182,19 @@ possibilities, such as detailed above. <br>
       Redis/Redis Stream (on the back end)
 
 - #### Local device 'contacts' access/integration
+
 ***
-<br>
 
 ### Tools and Workflow Collaboration
 
-> -  Github 'Projects' was used as the communal organiser to keep track of tasks and workflow during the project
-> - Morning Stand-ups as a group to briefly discuss work for the day before splitting ito smaller groups
-> - After Lunch meetings were held on an ad-hoc basis to discuss any progress or blockers
-> - Daily Retros from 4 as a group to complete any merging of code, and resolve any conflicts between versions before finally pushing all completed changes to the main branch
+> - GitHub 'Projects' was used as the communal organiser (Kanban) to keep track of tasks and workflow during the project
+![GitHub Projects screenshots](Screenshot_1.png)
+![GitHub Projects screenshots](Screenshot_2.png)
+<br>
+> - Morning stand-ups as a group to briefly discuss work for the day before splitting into smaller groups
+> - After-lunch meetings on an ad-hoc basis to discuss any progress or blockers
+> - Daily retros from 4pm as a group, including code review, to merge pull requests and resolve any conflicts between 
+    versions, before pushing all completed changes to the main branch
 
 
 
