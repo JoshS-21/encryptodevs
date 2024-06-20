@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
-
 import './signup.css';
-
 import logo from "../landing_page/Encryptodev_Logo.png";
 
 const Signup = () => {

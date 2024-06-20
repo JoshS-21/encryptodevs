@@ -5,12 +5,14 @@
 ### Contents
 1. [Setup](#setup)
 2. [MVP](#minimum-viable-product)
-3. [UI](#ui)
+3. [User Interface and API design](#user-interface-and-api-design)
 4. [WebSocket vs HTTP](#websocket-vs-http)
-5. [Sequence Diagram](#sequence-diagram)
-6. [Current Features](#current-features)
-7. [Tech Stack](#future-features)
-8. [Tools and Workflow Collaboration](#tools-and-workflow-collaboration)
+5. [Tools and Agile Methodologies](#tools-and-agile-methodologies)
+6. [Tech Stack](#future-features)
+7. [Sequence Diagram](#sequence-diagram)
+8. [Current Features](#current-features)
+9. [Future Features](#future-features)
+
 
 ### Setup
 
@@ -88,7 +90,7 @@ Our aim as a group was to create a secure message app, modelled loosely on Whats
 > - Click profile picture in chat to view contact card <br>
 
 
-### UI
+### User Interface and API design
 ![App Workflow](Screenshot_2024_06_20_14_45_49.png)
 <br>
 <br>
@@ -97,35 +99,48 @@ Our aim as a group was to create a secure message app, modelled loosely on Whats
 
 ### WebSocket vs HTTP
 
-In the interest of time, we decided that using WebSockets would be preferable to normal HTTP requests for this project. 
-They enable real-time, bidirectional communication between the client and server- 
-**i.e. They keep a connection open as people are sending messages back and forth, without reloading or sending new 
-requests everytime someone presses 'send'.**
-Although there are likely other better or more advanced technologies than WebSockets that would be used in industry, 
-this functionality of keeping an open connection is crucial for instant messaging.
+We chose to use the WebSocket protocol in preference to the more common HTTP protocol for this project as 
+it enables real-time, bidirectional communication between the client and server - 
+**i.e. it maintains an open connection as users are sending messages back and forth, without the need for constant 
+refreshing or reloading of the page to check for new messages (as would be necessary if using HTTP 
+requests/responses).**
+Although the use of WebSockets without an additional application layer extension is fairly crude, the functionality of 
+keeping an open connection is crucial for instant messaging, and time limitations prevented us from adding more elegant
+extensions 'on top'.
 
 <br>
 
-![WebSocket Flow Diagram](Screenshot_2024_06_20_14_45_49.png)
+![WebSocket Flow Diagram](Screenshot_3.png)
 
 #### Key advantages:
-> - Real-Time Communication: WebSockets allow for instantaneous data transfer, making messages appear in real-time
+> - Real-time communication: WebSockets allow for instantaneous data transfer, making messages appear in real-time
 > - Bidirectional: WebSockets support two-way communication, enabling both the client and server to send and receive 
-    messages at any time
+    messages at any time in 'full duplex' mode
 > - Efficient: WebSockets maintain a single open connection, instead of relying on multiple HTTP connections
-> - Low Latency: WebSockets allows faster data transfer compared to the request-response model of HTTP, ensuring faster 
+> - Low Latency: WebSockets allow faster data transfer compared to the request-response model of HTTP, ensuring faster 
     message delivery
 > - Scalability: WebSockets can handle a large number of simultaneous connections, making them suitable for applications
     with many users interacting in real-time
 
 ***
 
+### Tools and Agile Methodologies
+
+> - GitHub 'Projects' was used as the communal organiser (Kanban) to keep track of tasks and workflow during the project
+![GitHub Projects screenshots](Screenshot_1.png)
+![GitHub Projects screenshots](Screenshot_2.png)
+<br>
+> - Morning stand-ups as a group to briefly discuss work for the day before splitting into smaller groups
+> - After-lunch meetings on an ad-hoc basis to discuss any progress or blockers
+> - Daily retros from 4pm as a group, including code review, to merge pull requests and resolve any conflicts between 
+    versions, before pushing all completed changes to the main branch
+
 ### Sequence Diagram
 
 Although we had to abandon implementation of end-to-end encryption due to time constraints, the sequence
 diagram includes this functionality.
 
-![WorkFlow Mermaid](secure_messaging_app_sequence_diagram-2024-06-20-144854_720.png)
+![Sequence Diagram](sequence_diagram_3.png)
 
 ***
 
@@ -192,19 +207,3 @@ possibilities, such as detailed above. <br>
       Redis/Redis Stream (on the back end)
 
 - #### Local device 'contacts' access/integration
-
-***
-
-### Tools and Workflow Collaboration
-
-> - GitHub 'Projects' was used as the communal organiser (Kanban) to keep track of tasks and workflow during the project
-![GitHub Projects screenshots](Screenshot_1.png)
-![GitHub Projects screenshots](Screenshot_2.png)
-<br>
-> - Morning stand-ups as a group to briefly discuss work for the day before splitting into smaller groups
-> - After-lunch meetings on an ad-hoc basis to discuss any progress or blockers
-> - Daily retros from 4pm as a group, including code review, to merge pull requests and resolve any conflicts between 
-    versions, before pushing all completed changes to the main branch
-
-
-
