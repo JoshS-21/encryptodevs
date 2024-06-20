@@ -103,7 +103,7 @@ const Landing = () => {
             </div>
             {userData ? (
                 <div className="user-info-container">
-                    <p>Logged in as: {userData.username}</p>
+                    <p id={"current_user"}>Logged in as: {userData.username}</p>
                     <div className="status-indicator">
                         Status:
                         <FontAwesomeIcon

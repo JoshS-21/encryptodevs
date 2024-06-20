@@ -120,18 +120,18 @@ const Signup = () => {
         <p>Have an account? <Link to="/login">Login</Link></p>
       </div>
       <div className="signup-container">
-        <h2>Signup</h2>
+        <h2 id={"title"}>Signup</h2>
         <p>Create an account today and connect with others!</p>
         <form onSubmit={handleSubmit} className="signup-form">
           <div className="form-group">
-            <input type="text" name="name" placeholder="Name" value={formData.name} onChange={handleChange} required />
+            <input type="text" name="name" id={"name"} placeholder="Name" value={formData.name} onChange={handleChange} required />
           </div>
           <div className="form-group">
-            <input type="text" name="username" placeholder="Username" value={formData.username} onChange={handleChange} required />
+            <input type="text" name="username" id={"username"} placeholder="Username" value={formData.username} onChange={handleChange} required />
             {validationErrors.username && <p className="error-message">{validationErrors.username}</p>}
           </div>
           <div className="form-group">
-            <input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleChange} required />
+            <input type="email" name="email" id={"email"} placeholder="Email" value={formData.email} onChange={handleChange} required />
             {validationErrors.email && <p className="error-message">{validationErrors.email}</p>}
           </div>
           <div className="form-group">
@@ -142,6 +142,7 @@ const Signup = () => {
               <input
                 type={passwordVisible ? 'text' : 'password'}
                 name="password"
+                id={"password"}
                 placeholder="Password"
                 value={formData.password}
                 onChange={handleChange}
@@ -162,11 +163,11 @@ const Signup = () => {
             </ul>
           </div>
           <div className="form-group">
-            <input type="text" name="phone_number" placeholder="Phone Number" value={formData.phone_number} onChange={handleChange} required />
+            <input type="text" name="phone_number" id={"phone_number"} placeholder="Phone Number" value={formData.phone_number} onChange={handleChange} required />
             {validationErrors.phone_number && <p className="error-message">{validationErrors.phone_number}</p>}
           </div>
           <div className="form-group">
-            <button type="submit">Signup</button>
+            <button type="submit" id={"submit"}>Signup</button>
           </div>
         </form>
       </div>

@@ -51,12 +51,13 @@ const Login = () => {
         <p>Need an account? <Link to="/signup">Sign up</Link></p>
       </div>
       <div className="login-container">
-        <h2>Login</h2>
+        <h2 id={"title"}>Login</h2>
         <form onSubmit={handleSubmit} className="login-form">
           <div className="form-group">
             <input
               type="text"
               name="username"
+              id={"username"}
               placeholder="Username"
               value={formData.username}
               onChange={handleChange}
@@ -69,6 +70,7 @@ const Login = () => {
             <input
               type="password"
               name="password"
+              id={"password"}
               placeholder="Password"
               value={formData.password}
               onChange={handleChange}
@@ -78,7 +80,7 @@ const Login = () => {
             />
           </div>
           <div className="form-group">
-            <button type="submit" className="login-input">Login</button>
+            <button type="submit" id={"submit"} className="login-input">Login</button>
           </div>
         </form>
         {errorMessage && <p className="error-message">{errorMessage}</p>}
