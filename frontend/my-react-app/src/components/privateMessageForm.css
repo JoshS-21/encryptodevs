@@ -1,0 +1,85 @@
+/* Styles for the overall container */
+.private-message-form-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh; /* Full viewport height */
+  background-color: #f0f0f0; /* Light background color */
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* Logo styles */
+.private-message-form-container img {
+  width: 200px; /* Adjust logo size as needed */
+  height: auto;
+  margin-bottom: 20px; /* Space below the logo */
+}
+
+/* Message container styles */
+.message-container {
+  width: 100%;
+  max-width: 600px; /* Limit width of message container */
+  background-color: #ffffff; /* White background */
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Box shadow for a slight elevation effect */
+}
+
+/* Input field and button container styles */
+.input-container {
+  display: flex;
+  align-items: center;
+  margin-top: 20px; /* Space above the input field */
+}
+
+.input-container input[type="text"] {
+  flex: 1; /* Take remaining space */
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc; /* Light gray border */
+  border-radius: 4px;
+}
+
+.input-container button {
+  padding: 10px 20px;
+  font-size: 16px;
+  color: #fff; /* White text */
+  background-color: #007bff; /* Blue background color */
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.input-container button:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}
+
+/* Return to main page link */
+.return-link {
+  margin-top: 20px; /* Space above the link */
+}
+
+.return-link a {
+  color: #007bff; /* Blue link color */
+  text-decoration: none;
+}
+
+.return-link a:hover {
+  text-decoration: underline; /* Underline on hover */
+}
+
+/* Messages list styles */
+.messages-list {
+  margin-top: 20px; /* Space above the messages list */
+  padding: 0;
+  list-style: none;
+}
+
+.messages-list li {
+  background-color: #f0f0f0; /* Light gray background for messages */
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 10px;
+}

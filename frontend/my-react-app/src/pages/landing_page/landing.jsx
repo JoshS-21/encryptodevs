@@ -6,6 +6,7 @@ import {faCircle} from '@fortawesome/free-solid-svg-icons'; //Styling for icon s
 import logo from './Encryptodev_Logo.png';
 import DropdownMenu from "../../components/dropdown";
 import initializeWebSocket from "../../components/WebSocket.js";
+import './landing.css'; // Import your CSS file
 
 
 const Landing = () => {
@@ -95,45 +96,47 @@ const Landing = () => {
         return `on ${lastSeenDate.toLocaleDateString()} at ${lastSeenDate.toLocaleTimeString()}`;
     };
 
-
-    return (
-        <div>
-            <h2>Welcome to the Landing Page</h2>
-            <img src={logo} alt="Encryptodevs_Logo" style={{width: '200px', height: 'auto'}}/>
+        return (
+        <div className="page-container">
+            <div className="logo-container">
+                <img src={logo} alt="Encryptodevs_Logo" />
+            </div>
             {userData ? (
-                <div>
+                <div className="user-info-container">
                     <p>Logged in as: {userData.username}</p>
-                    <p>
+                    <div className="status-indicator">
                         Status:
                         <FontAwesomeIcon
                             icon={faCircle}
-                            style={{color: userData.is_online ? 'green' : 'red', marginLeft: '8px'}}
+                            style={{ color: userData.is_online ? 'green' : 'red', marginLeft: '8px' }}
                         />
-                        {userData.is_online ? 'Online' : `Offline (Last seen: ${formatLastSeen(userData.last_seen)})`}
-                    </p>
-                    <button onClick={handleLogout}>Logout</button>
+                        <span>{userData.is_online ? 'Online' : `Offline (Last seen: ${formatLastSeen(userData.last_seen)})`}</span>
+                    </div>
+                    <button className="logout-button" onClick={handleLogout}>Logout</button>
                 </div>
             ) : (
                 <p>User data is not available</p>
             )}
 
-            <h3>All Users:</h3>
-            <ul>
-                {users.map(user => (
-                    <li key={user.user_id}>
-                        {user.username} -
-                        <FontAwesomeIcon
-                            icon={faCircle}
-                            style={{color: user.is_online ? 'green' : 'red', marginLeft: '8px'}}
-                        />
-                        {user.is_online ? 'Online' : `Offline (Last seen: ${formatLastSeen(user.last_seen)})`}
-                    </li>
-                ))}
-            </ul>
-            <br/>
-            <br/>
-            <br/>
-            <DropdownMenu userData={userData} users={users} />
+            <div className="users-list">
+                <h3>All Users:</h3>
+                <ul>
+                    {users.map(user => (
+                        <li key={user.user_id}>
+                            {user.username}
+                            <span>
+                                <FontAwesomeIcon
+                                    icon={faCircle}
+                                    style={{ color: user.is_online ? 'green' : 'red', marginLeft: '8px' }}
+                                />
+                                {user.is_online ? 'Online' : `Offline (Last seen: ${formatLastSeen(user.last_seen)})`}
+                            </span>
+                        </li>
+                    ))}
+                </ul>
+                <br/>
+            </div>
+                <DropdownMenu userData={userData} users={users} />
         </div>
     );
 };

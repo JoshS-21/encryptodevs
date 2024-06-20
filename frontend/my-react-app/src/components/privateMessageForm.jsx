@@ -2,13 +2,15 @@ import React, { useEffect, useState } from 'react';
 import io from 'socket.io-client';
 import logo from './Encryptodev_Logo.png';
 import { useSearchParams } from 'react-router-dom';
+import './privateMessageForm.css'; // Import your CSS file
+
 
 
 const PrivateMessageForm = () => {
   let [recipient, setRecipient] = useState('');
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
-  const [sender, setSender] = useState('');
+  let [sender, setSender] = useState('');
   const [socket, setSocket] = useState(null);
   const [searchParams] = useSearchParams();
 
@@ -20,7 +22,7 @@ const PrivateMessageForm = () => {
       window.location.href = '/login'; // Redirect to login if no token is found
     }
 
-    const serverUrl = 'http://localhost:5000'; // Replace with your server URL and port
+    const serverUrl = 'http://localhost:5000';
     const newSocket = io(serverUrl, {
       query: { token: token },
     });
@@ -47,8 +49,9 @@ const PrivateMessageForm = () => {
   const handleSendPrivateMessage = () => {
     if (socket) {
       recipient = searchParams.get('user2')
+      sender = searchParams.get('user1')
       console.log(recipient);
-      socket.emit('private_message', { recipient, message, sender });
+      socket.emit('private_message', { recipient, message });
       setRecipient('');
       setMessage('');
       setSender('');
@@ -58,28 +61,33 @@ const PrivateMessageForm = () => {
   };
 
   return (
-      <div>
-        <img src={logo} alt="Encryptodevs_Logo" style={{width: '200px', height: 'auto'}}/>
+    <div className="private-message-form-container">
+      <img src={logo} alt="Encryptodevs_Logo" />
+
+      <div className="message-container">
+        <h3>Messages:</h3>
+        <ul className="messages-list">
+          {messages.map((msg, index) => (
+            <li key={index}>{msg}</li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="input-container">
         <input
-            type="text"
-            id="private_message"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder="Private Message"
+          type="text"
+          id="private_message"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          placeholder="Private Message"
         />
         <button onClick={handleSendPrivateMessage}>Send Private Message</button>
-        <p>Return to <a href="/landing">main page</a></p>
-
-        <div>
-          <h3>Messages:</h3>
-          <ul>
-            {messages.map((msg, index) => (
-                <li key={index}>{msg}</li>
-            ))}
-          </ul>
-        </div>
       </div>
+
+      <p className="return-link">Return to <a href="/landing">main page</a></p>
+    </div>
   );
 };
+
 
 export default PrivateMessageForm;
