@@ -2,19 +2,15 @@ from flask import Flask, request, jsonify
 from pymongo import MongoClient
 from bson import ObjectId
 from flask_cors import CORS
-
 from flask_socketio import SocketIO, send, emit
 import time, timedelta
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, verify_jwt_in_request, \
-    decode_token
-
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, decode_token
 from flask_bcrypt import Bcrypt
 import os
 from dotenv import load_dotenv
 from user import User
 import uuid
 import requests
-from mailjet_rest import Client
 from functools import wraps
 
 # Load environment variables from .env file
