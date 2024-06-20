@@ -38,8 +38,8 @@ def test_successful_signup(setup):
 def test_successful_login(setup):
     setup.get("http://localhost:3000/login")
 
-    setup.find_element(By.ID, "username").send_keys("test_user")
-    setup.find_element(By.ID, "password").send_keys("Password123!")
+    setup.find_element(By.ID, "username").send_keys("josh10")
+    setup.find_element(By.ID, "password").send_keys("Password123!!")
     setup.find_element(By.ID, "submit").click()
     time.sleep(4)
     alert = setup.switch_to.alert
@@ -49,4 +49,4 @@ def test_successful_login(setup):
     alert.accept()
     time.sleep(2)
     title = setup.find_element(By.ID, "current_user")
-    assert title.text == "Logged in as: test_user"
+    assert title.text == "Logged in as: josh10"
