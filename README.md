@@ -27,14 +27,11 @@
 
 4. Open the project in your preferred IDE.
 
-5. Open a terminal and navigate to the 'api' directory and create a new file called .env (with no file extension). Add 
-   the following contents to the file, then save:
+5. **NOTE: You will see two '.env' files in the repository for this project. Whilst we acknowledge that it is NOT good 
+practice to commit these files to GitHub, as this project is solely for demo purposes and contains no real user data, 
+we included them for the sake of simplicity.**
 
-    `***CHECK WHAT CODE NEEDS TO GO HERE***` <br>
-(Include the quotation marks.)
-***THIS FILE MUST NOT BE PUSHED TO A REMOTE REPOSITORY! BE SURE TO ADD IT TO YOUR '.gitignore' FILE!***
-
-6. Whilst in the 'api' directory, run 
+6. Navigate to the 'api' directory and run 
 
     `python3 -m pip install -r requirements.txt` <br>
 to install the dependencies for the Flask backend app. 
