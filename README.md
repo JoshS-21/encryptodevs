@@ -124,9 +124,12 @@ extensions 'on top'.
 ### Tools and Agile Methodologies
 
 > - GitHub 'Projects' was used as the communal organiser (Kanban) to keep track of tasks and workflow during the project
+
 ![GitHub Projects screenshots](frontend/my-react-app/Screenshot_1.png)
 ![GitHub Projects screenshots](frontend/my-react-app/Screenshot_2.png)
+
 <br>
+
 > - Morning stand-ups as a group to briefly discuss work for the day before splitting into smaller groups
 > - After-lunch meetings on an ad-hoc basis to discuss any progress or blockers
 > - Daily retros from 4pm as a group, including code review, to merge pull requests and resolve any conflicts between 
