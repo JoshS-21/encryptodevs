@@ -1,13 +1,19 @@
-/* Styles for the overall container */
-.private-message-form-container {
+/* Reset default margin and padding */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Container for the entire chat page */
+.chat-page-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh; /* Full viewport height */
-  background-color: #f0f0f0; /* Light background color */
-  padding: 20px;
-  box-sizing: border-box;
+  min-height: 100vh; /* Ensure full viewport height */
+  background-color: #f3f4f6;
+  font-family: Arial, sans-serif;
 }
 
 /* Logo styles */
@@ -17,69 +23,79 @@
   margin-bottom: 20px; /* Space below the logo */
 }
 
-/* Message container styles */
-.message-container {
+/* Main chat container */
+.chat-container {
   width: 100%;
-  max-width: 600px; /* Limit width of message container */
-  background-color: #ffffff; /* White background */
-  padding: 20px;
+  max-width: 600px;
+  background-color: #fff;
   border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Box shadow for a slight elevation effect */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
 }
 
-/* Input field and button container styles */
-.input-container {
+/* Styling for the list of messages */
+.messages-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  max-height: 400px; /* Adjust as needed */
+  overflow-y: auto;
+}
+
+/* Styling for individual messages */
+.messages-list li {
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  word-break: break-word; /* Handle long words */
+  background-color: #E5E7EB; /* Grey background for all messages */
+}
+
+/* Input field and button container */
+.message-input-container {
   display: flex;
   align-items: center;
-  margin-top: 20px; /* Space above the input field */
+  margin-top: 20px;
 }
 
-.input-container input[type="text"] {
-  flex: 1; /* Take remaining space */
+/* Input field for typing messages */
+.message-input-container input[type="text"] {
+  flex: 1;
   padding: 10px;
   font-size: 16px;
-  border: 1px solid #ccc; /* Light gray border */
+  border: 1px solid #ccc;
   border-radius: 4px;
+  margin-right: 10px;
 }
 
-.input-container button {
+/* Button to send messages */
+.message-input-container button {
   padding: 10px 20px;
-  font-size: 16px;
-  color: #fff; /* White text */
-  background-color: #007bff; /* Blue background color */
+  background-color: #4CAF50;
+  color: #fff;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
-.input-container button:hover {
-  background-color: #0056b3; /* Darker blue on hover */
+/* Hover state for send button */
+.message-input-container button:hover {
+  background-color: #45a049;
 }
 
-/* Return to main page link */
-.return-link {
-  margin-top: 20px; /* Space above the link */
-}
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .chat-container {
+    padding: 10px;
+  }
 
-.return-link a {
-  color: #007bff; /* Blue link color */
-  text-decoration: none;
-}
+  .message-input-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
 
-.return-link a:hover {
-  text-decoration: underline; /* Underline on hover */
-}
-
-/* Messages list styles */
-.messages-list {
-  margin-top: 20px; /* Space above the messages list */
-  padding: 0;
-  list-style: none;
-}
-
-.messages-list li {
-  background-color: #f0f0f0; /* Light gray background for messages */
-  border-radius: 8px;
-  padding: 10px;
-  margin-bottom: 10px;
+  .message-input-container input[type="text"] {
+    margin-bottom: 10px;
+  }
 }
