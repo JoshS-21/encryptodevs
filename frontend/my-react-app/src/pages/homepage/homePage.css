@@ -1,0 +1,52 @@
+/* Reset default margin and padding */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Container for the entire home page */
+.home-page-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh; /* Ensure full viewport height */
+  background-color: #f3f4f6; /* Light background color */
+  font-family: Arial, sans-serif;
+}
+
+/* Content container within the home page */
+.home-page-content {
+  text-align: center;
+}
+
+/* Styling for the logo image */
+.logo-image {
+  width: 200px; /* Adjust logo size as needed */
+  height: auto;
+  margin-top: 20px; /* Space above the logo */
+}
+
+/* Styling for the heading */
+.home-page-content h1 {
+  font-size: 2.5rem; /* Example: Larger heading font size */
+  margin-bottom: 20px; /* Space below the heading */
+}
+
+/* Styling for the paragraph */
+.home-page-content p {
+  font-size: 1.2rem; /* Example: Paragraph font size */
+  margin-top: 10px; /* Space above the paragraph */
+}
+
+/* Styling for links within the paragraph */
+.home-page-content p a {
+  color: #007bff; /* Example: Blue link color */
+  text-decoration: none;
+  margin-left: 5px; /* Space between links */
+}
+
+/* Hover state for links */
+.home-page-content p a:hover {
+  text-decoration: underline;
+}
