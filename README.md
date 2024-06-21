@@ -127,6 +127,7 @@ extensions 'on top'.
 
 ![GitHub Projects screenshots](frontend/my-react-app/github_projects_tasks.png)
 <br>
+
 ![GitHub Projects screenshots](frontend/my-react-app/github_projects_kanban.png)
 
 <br>
