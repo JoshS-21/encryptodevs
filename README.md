@@ -88,7 +88,7 @@ Our aim as a group was to create a secure message app, modelled loosely on Whats
 
 
 ### User Interface and API design
-![App Workflow](frontend/my-react-app/Screenshot_2024_06_20_14_45_49.png)
+![App Workflow](frontend/my-react-app/ui_and_api_design.png)
 <br>
 <br>
 
@@ -107,7 +107,7 @@ extensions 'on top'.
 
 <br>
 
-![WebSocket Flow Diagram](frontend/my-react-app/Screenshot_3.png)
+![WebSocket Flow Diagram](frontend/my-react-app/websocket_connection.png)
 
 #### Key advantages:
 > - Real-time communication: WebSockets allow for instantaneous data transfer, making messages appear in real-time
@@ -125,8 +125,8 @@ extensions 'on top'.
 
 > - GitHub 'Projects' was used as the communal organiser (Kanban) to keep track of tasks and workflow during the project
 
-![GitHub Projects screenshots](frontend/my-react-app/Screenshot_1.png)
-![GitHub Projects screenshots](frontend/my-react-app/Screenshot_2.png)
+![GitHub Projects screenshots](frontend/my-react-app/github_projects_tasks.png)
+![GitHub Projects screenshots](frontend/my-react-app/github_projects_kanban.png)
 
 <br>
 
@@ -148,7 +148,7 @@ extensions 'on top'.
 Although we had to abandon implementation of end-to-end encryption due to time constraints, the sequence
 diagram includes this functionality.
 
-![Sequence Diagram](frontend/my-react-app/sequence_diagram_3.png)
+![Sequence Diagram](frontend/my-react-app/sequence_diagram.png)
 
 ***
 
@@ -207,3 +207,4 @@ possibilities, such as detailed above. <br>
       Redis/Redis Stream (on the back end)
 
 - #### Local device 'contacts' access/integration
+- #### Google OAuth2.0/OIDC login
