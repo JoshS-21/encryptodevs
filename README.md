@@ -126,6 +126,7 @@ extensions 'on top'.
 > - GitHub 'Projects' was used as the communal organiser (Kanban) to keep track of tasks and workflow during the project
 
 ![GitHub Projects screenshots](frontend/my-react-app/github_projects_tasks.png)
+<br>
 ![GitHub Projects screenshots](frontend/my-react-app/github_projects_kanban.png)
 
 <br>
@@ -208,3 +209,4 @@ possibilities, such as detailed above. <br>
 
 - #### Local device 'contacts' access/integration
 - #### Google OAuth2.0/OIDC login
+- #### Use of HTTPS (vs HTTP) and WSS (vs WS)
